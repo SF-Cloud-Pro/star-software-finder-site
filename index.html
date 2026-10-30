@@ -1,0 +1,1038 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<title>STAR Software Finder</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex,nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: navy masthead with two tabs, a filter band, facts strip, three headline cards, six component cards, the leaderboard, the score guide, then the charts, data checks and targets used. One light theme in the Software Finder palette: navy, one green accent, cool greys. */
+:root{
+  --bg:#F1F4F3; --surface:#FFFFFF; --surface2:#EAF0EE; --ink:#16231F; --muted:#5E706B; --line:#DCE4E1; --mint:#DDEFE3;
+  --navy:#0D3B36; --navy2:#0D3B36; --brand:#8BDB62; --brand-deep:#2E7D32; --on-ink:#F4FAF7;
+  --head:#0D3B36; --head-ink:#F4FAF7; --head-muted:#A9C5BD; --head-line:rgba(255,255,255,.18);
+  --bar:#0D3B36; --good:#2E7D32; --warn:#8A5A00; --bad:#B3362D;
+  --r1:#0D3B36; --r2:#27594F; --r3:#437A69; --r4:#6E9C8A; --r5:#9BBFAE; --r6:#C6DDD0;
+  --shadow:0 1px 2px rgba(13,59,54,.05),0 4px 16px rgba(13,59,54,.05);
+  --f:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);font-size:14px;line-height:1.5;padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--head)}
+.in{max-width:1440px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brand-deep);outline-offset:2px}
+.top :focus-visible{outline-color:var(--brand)}
+h1,h2,h3{text-wrap:balance}
+.num,td.n,.tot,.val,.mvals b{font-variant-numeric:tabular-nums}
+
+/* masthead */
+.top{background:var(--head);color:var(--head-ink)}
+.top .in{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding-block:16px 0}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 360px}
+.brand h1{font:700 22px/1 var(--f);margin:0;letter-spacing:-.01em;white-space:nowrap}
+.brand .sep{width:1px;height:26px;background:var(--head-line);flex:none}
+.brand .sub{font:500 14px/1.25 var(--f);color:var(--head-muted)}
+.meta{font-size:13px;color:var(--head-muted);text-align:right}
+.meta b{color:var(--head-ink);font-weight:600}
+.tabs{display:flex;gap:4px;width:100%;overflow-x:auto}
+.tab{background:none;border:0;color:var(--head-muted);padding:12px 14px;font-weight:600;font-size:14.5px;border-bottom:3px solid transparent;white-space:nowrap}
+.tab:hover{color:var(--head-ink)}
+.tab[aria-selected="true"]{color:var(--head-ink);border-bottom-color:var(--brand)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 13px;font-weight:600;display:inline-flex;gap:6px;align-items:center}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--navy);color:var(--on-ink);border-color:var(--navy)}
+
+/* filter band */
+.band{background:var(--surface);border-bottom:1px solid var(--line);z-index:40}
+.band .in{padding-block:12px}
+@media (min-width:1000px){.band{position:sticky;top:env(safe-area-inset-top,0px)}}
+.frow{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fld>span,.lbl{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+select,input[type=search]{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:0}
+.fld select{min-width:116px}
+details.ms{position:relative}
+details.ms>summary{list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 11px;min-width:170px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+details.ms>summary::-webkit-details-marker{display:none}
+.mspanel{position:absolute;z-index:50;top:calc(100% + 4px);left:0;width:min(300px,86vw);background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:10px;display:flex;flex-direction:column;gap:8px}
+.mslist{max-height:260px;overflow:auto;display:flex;flex-direction:column}
+.mslist label{display:flex;gap:8px;align-items:center;padding:4px 2px;cursor:pointer}
+.focus{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.focus .lbl{margin-right:4px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 12px;font-weight:600;display:inline-flex;gap:7px;align-items:center}
+.chip small{color:var(--muted);font-weight:500}
+.chip[aria-pressed="true"]{background:var(--navy);color:var(--on-ink);border-color:var(--navy)}
+.chip[aria-pressed="true"] small{color:inherit;opacity:.7}
+.chk{display:inline-flex;gap:7px;align-items:center;margin-left:auto;cursor:pointer}
+
+/* page head, facts, headline cards */
+.main{padding-block:20px 0}
+.pagehead{margin-bottom:14px}
+.pagehead h2{font:700 26px/1.15 var(--f);letter-spacing:-.015em;margin:0}
+.pagehead p{margin:4px 0 0;color:var(--muted)}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.strip>div{background:var(--surface);padding:14px 18px;min-width:0;text-align:center}
+.strip span{display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.strip b{display:block;font:600 18px/1.3 var(--f);margin-top:3px;overflow-wrap:anywhere}
+.strip small{display:block;color:var(--muted);font-size:12.5px}
+.bigs{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;margin-top:16px}
+.bigc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px 20px 20px;text-align:center;box-shadow:var(--shadow);min-width:0}
+.bigc .lbl{display:block}
+.bigc .val{font:800 clamp(40px,5.5vw,56px)/1.05 var(--f);letter-spacing:-.025em;margin:8px 0 2px}
+.bigc .val small{font-size:.36em;font-weight:600;color:var(--muted);letter-spacing:0}
+.bigc .meter{height:6px;border-radius:99px;background:var(--surface2);margin:12px auto 10px;max-width:340px;overflow:hidden}
+.bigc .meter i{display:block;height:100%;border-radius:99px;background:var(--bar)}
+.bigc p{margin:0;color:var(--muted);font-size:13px}
+.names{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}
+
+/* component cards */
+.comps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.cc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;text-align:left;box-shadow:var(--shadow);min-width:0}
+.cc:hover{border-color:var(--muted)}
+.cc[aria-pressed="true"]{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy)}
+.cc .lbl{display:flex;justify-content:space-between;gap:8px}
+.cc .val{font:800 28px/1.1 var(--f);margin:6px 0 2px;letter-spacing:-.02em}
+.cc .val small{font-size:14px;font-weight:600;color:var(--muted)}
+.cc .bar{height:5px;border-radius:3px;background:var(--surface2);margin:8px 0 6px;overflow:hidden}
+.cc .bar i{display:block;height:100%;background:var(--bar)}
+.cc p{margin:0;font-size:12.5px;color:var(--muted)}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;min-width:0;box-shadow:var(--shadow)}
+.card h2{font:700 15px/1.25 var(--f);margin:0 0 2px}
+.card .sub{color:var(--muted);font-size:12.5px;margin:0 0 10px}
+.note{color:var(--muted);font-size:12.5px}
+details.how{margin-top:16px;padding:0}
+details.how>summary{list-style:none;cursor:pointer;padding:14px 18px;font:700 15px var(--f);display:flex;justify-content:space-between;gap:10px}
+details.how>summary::-webkit-details-marker{display:none}
+details.how>summary span{font:500 13px var(--f);color:var(--muted)}
+.guide{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line);border-radius:0 0 12px 12px;overflow:hidden}
+.guide>div{background:var(--surface);padding:14px 18px;min-width:0}
+.guide h3{margin:0 0 4px;font:700 14px var(--f);display:flex;gap:8px;align-items:center}
+.guide h3 em{margin-left:auto;font-style:normal;font-weight:700;color:var(--muted)}
+.guide p{margin:0;color:var(--muted);font-size:13px}
+
+/* charts */
+.sech{font:700 12px var(--f);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:28px 0 -4px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:16px}
+.cbox{position:relative;height:270px}
+.ins{margin:10px 0 0;padding-top:10px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+.ins b{color:var(--ink);font-weight:600}
+
+/* leaderboard and tables */
+.tcard{margin-top:16px;padding:0;overflow:hidden}
+.thead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:18px 18px 12px;align-items:flex-end}
+.hint{font-size:12.5px;font-weight:600;color:var(--muted)}
+.scroll{overflow-x:auto}
+table{border-collapse:separate;border-spacing:0;width:100%}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:#F4FAF7;font-weight:600;background:var(--navy2);border-bottom:0;position:sticky;top:0}
+.tmat th,.tgt th{background:var(--surface2);color:var(--muted)}
+tbody tr.lb{cursor:pointer}
+tbody tr.lb:nth-child(even) td{background:#F5F8F7}
+tbody tr.lb td.tot{background:var(--mint)}
+tbody tr.lb:hover td{background:var(--surface2)}
+tbody tr.lb:hover td.tot{background:#CBE5D3}
+td.n,th.n{text-align:right}
+.rk{width:48px;font-weight:700;color:var(--muted)}
+.rk.top3{color:var(--ink)}
+.who{display:flex;gap:10px;align-items:center;font-weight:600}
+.av{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;font:700 11.5px var(--f);background:var(--surface2);color:var(--navy2)}
+.who small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.mini{display:flex;align-items:center;gap:8px;justify-content:flex-end;min-width:104px}
+.mini .bar{flex:1;max-width:54px;height:5px;border-radius:3px;background:var(--surface2);overflow:hidden}
+.mini .bar i{display:block;height:100%;border-radius:3px;background:var(--bar)}
+.cellbtn{background:none;border:1px solid transparent;border-radius:8px;padding:4px 7px;margin:-4px -7px;display:block;width:calc(100% + 14px)}
+.cellbtn:hover{border-color:var(--line);background:var(--surface)}
+.cellbtn b{border-bottom:1px dotted var(--muted)}
+.mini.full b{color:var(--good)}
+.col-on{background:color-mix(in srgb,var(--navy) 5%,transparent)}
+.th-note{opacity:.7}
+.tot{font:800 16px var(--f)}
+.badge{display:inline-flex;gap:5px;align-items:center;border-radius:6px;padding:2px 8px;font-size:11.5px;font-weight:700;background:var(--surface2);color:var(--muted)}
+.badge.star{background:var(--navy);color:var(--on-ink)}
+.badge.warn{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn)}
+.tdots{display:inline-flex;gap:4px;vertical-align:middle;margin-right:8px}
+.tdots i{width:8px;height:8px;border-radius:50%;border:1.5px solid #AAB6C8;display:block}
+.tdots i.on{background:var(--bar);border-color:var(--bar)}
+.gap{font-size:12.5px;color:var(--muted)}
+.empty{padding:40px 18px;text-align:center;color:var(--muted)}
+.empty h3{font:700 19px var(--f);color:var(--ink);margin:0 0 6px}
+.lost td{white-space:normal;vertical-align:top;min-width:150px}
+.lost td.nw,.lost th.nw{white-space:nowrap;min-width:0}
+.lost .why{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.lost .zero{color:var(--good);font-weight:700}
+.lost td.hit b{color:var(--bad)}
+
+/* data checks and targets used */
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:12px}
+.checks>div{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface)}
+.checks b{display:block;font-size:20px;font-weight:800}
+.checks span{color:var(--muted);font-size:13px}
+.checks details{margin-top:6px;font-size:12.5px;color:var(--muted)}
+.checks summary{cursor:pointer;font-weight:600;color:var(--brand-deep)}
+.tgt{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;padding:0 18px 18px}
+.tgt h3{font:700 14px var(--f);margin:12px 0 6px}
+.tgt table th,.tgt table td{padding:6px 8px}
+.rulelist{margin:0;padding:0;list-style:none}
+.rulelist li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-top:1px solid var(--line);font-size:13px}
+.rulelist li:first-child{border-top:0}
+.rulelist b{white-space:nowrap}
+
+/* panel (opens from a score) */
+.scrim{position:fixed;inset:0;background:rgba(6,10,18,.5);z-index:70}
+.drawer{position:fixed;z-index:80;top:0;right:0;bottom:0;width:min(520px,100vw);background:var(--surface);border-left:1px solid var(--line);overflow:auto;
+  padding:calc(18px + env(safe-area-inset-top,0px)) max(18px,env(safe-area-inset-right,0px)) calc(28px + env(safe-area-inset-bottom,0px)) 20px;box-shadow:var(--shadow)}
+.drawer h2{font:700 22px/1.15 var(--f);margin:2px 0 0;letter-spacing:-.01em}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-deep)}
+.dhead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.big{font:800 44px/1 var(--f);margin:16px 0 4px;letter-spacing:-.025em}
+.big small{font:600 16px var(--f);color:var(--muted);letter-spacing:0}
+.meter2{height:8px;border-radius:99px;background:var(--surface2);overflow:hidden;margin:8px 0}
+.meter2 i{display:block;height:100%;border-radius:99px;background:var(--bar)}
+.explain{background:var(--surface2);border-radius:10px;padding:12px 14px;margin:14px 0;font-size:13px}
+.explain b{display:block;margin-bottom:4px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.dsec{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:20px 0 4px}
+.crow{padding:12px 0;border-top:1px solid var(--line)}
+.crow .top2{display:flex;justify-content:space-between;gap:10px;font-weight:700;align-items:center}
+.crow .bar{height:6px;border-radius:4px;background:var(--surface2);margin:7px 0 5px;overflow:hidden}
+.crow .bar i{display:block;height:100%;background:var(--bar)}
+.crow p{margin:0;color:var(--muted);font-size:13px}
+.crow .more{margin-top:6px;border:0;background:none;padding:0;color:var(--brand-deep);font-weight:700;font-size:13px}
+.crow .more:hover{text-decoration:underline}
+.mrow{padding:14px 0;border-top:1px solid var(--line)}
+.mtop{display:flex;justify-content:space-between;gap:10px;align-items:center;font-weight:700;font-size:15px}
+.mvals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:8px}
+.mvals span{min-width:0}
+.mvals small{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.mvals b{font-size:15px}
+.gauge{position:relative;height:8px;border-radius:99px;background:var(--surface2);margin:12px 0 8px}
+.gauge i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--bar)}
+.gauge i.over{background:var(--bad)}
+.gauge u{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--navy);border-radius:2px;text-decoration:none}
+.mnote{margin:0;color:var(--muted);font-size:12.5px}
+.st{display:inline-flex;align-items:center;border-radius:6px;padding:2px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.st.ok{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good)}
+.st.short{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn)}
+.st.na{background:var(--surface2);color:var(--muted)}
+.tmat th,.tmat td{padding:6px 8px}
+.tmat tr.hl td{background:color-mix(in srgb,var(--brand) 14%,transparent);font-weight:700}
+.dfoot{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--navy);color:var(--on-ink);padding:9px 16px;border-radius:8px;z-index:100;max-width:90vw}
+@media (prefers-reduced-motion:no-preference){.drawer{animation:slide .18s ease-out}@keyframes slide{from{transform:translateX(24px);opacity:.6}}}
+@media (max-width:900px){.brand .sep,.brand .sub{display:none}.meta{text-align:left}}
+@media (max-width:560px){.mvals{grid-template-columns:repeat(2,minmax(0,1fr))}.brand h1{font-size:19px}}
+</style>
+<header class="top">
+  <div class="in">
+    <div class="brand">
+      <h1>STAR Software Finder</h1><span class="sep" aria-hidden="true"></span><span class="sub">SDR Performance Dashboard</span>
+    </div>
+    <div class="meta" id="meta">Loading…</div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab" role="tab" data-tab="dash" aria-selected="true">Dashboard</button>
+      <button class="tab" role="tab" data-tab="charts" aria-selected="false">Charts</button>
+      <button class="tab" role="tab" data-tab="lost" aria-selected="false">Points lost</button>
+    </nav>
+  </div>
+</header>
+
+<div class="band"><div class="in">
+  <div class="frow">
+    <label class="fld"><span>View</span><select id="fView"></select></label>
+    <label class="fld"><span>Period</span><select id="fPeriod"></select></label>
+    <div class="fld"><span>SDR</span>
+      <details class="ms" id="msd"><summary><span id="msTxt">All SDRs</span><span aria-hidden="true">▾</span></summary>
+        <div class="mspanel"><input type="search" id="msq" placeholder="Search SDR" aria-label="Search SDR">
+          <div class="mslist" id="msl"></div>
+          <div style="display:flex;gap:8px"><button class="btn" id="msAll" type="button">Select all</button><button class="btn" id="msClear" type="button">Clear</button></div></div></details></div>
+    <label class="fld"><span>Track</span><select id="fTrack"><option value="all">All tracks</option><option value="Warm">Warm</option><option value="Cold & Internal">Cold &amp; Internal</option></select></label>
+    <label class="fld"><span>Category</span><select id="fCat"><option value="all">All categories</option></select></label>
+    <button class="btn" id="fReset" type="button">Reset</button>
+    <button class="btn" id="btnExport" type="button" style="margin-left:auto">Export</button>
+  </div>
+  <div class="focus" id="focus" role="group" aria-label="Focus on a score component"></div>
+</div></div>
+
+<section id="p-dash"><div class="in main">
+  <div class="pagehead"><h2>Team performance</h2><p id="scopeLine">Loading…</p></div>
+  <div id="empty"></div>
+  <div id="body">
+    <div class="strip" id="kpis"></div>
+    <div class="bigs" id="bigs"></div>
+    <div class="comps" id="comps"></div>
+    <div class="card tcard">
+      <div class="thead"><div><h2 id="tT">Leaderboard</h2><p class="sub" id="tS" style="margin:0"></p></div><span class="hint">Click any score to see the target behind it</span></div>
+      <div class="scroll" id="board"></div>
+    </div>
+    <details class="card how" id="howD" open><summary>How the score works <span>100 points, six parts.</span></summary><div class="guide" id="howBody"></div></details>
+    <div class="card" style="margin-top:16px"><h2>Data checks</h2><p class="sub">Things in the workbook that the scores had to assume or skip, for the SDRs in view</p><div class="checks" id="checks"></div></div>
+    <details class="card how" id="tgtD"><summary>Targets and rules used <span>Read from the Settings tab of the team workbook.</span></summary><div class="tgt" id="tgtBody"></div></details>
+    <p class="note" style="margin-top:14px" id="foot"></p>
+  </div>
+</div></section>
+
+<section id="p-charts" hidden><div class="in main">
+  <div class="pagehead"><h2>Charts</h2><p id="chartsLine">Team averages, trends and distributions.</p></div>
+    <div class="grid3">
+      <div class="card"><h2>Component attainment</h2><p class="sub">Team average, as a share of the points each part can give</p><div class="cbox"><canvas id="chA" role="img" aria-label="Attainment by component"></canvas></div><p class="ins" id="ins1"></p></div>
+      <div class="card"><h2 id="cBT">Trend</h2><p class="sub" id="cBS">Team average by period</p><div class="cbox"><canvas id="chB" role="img" aria-label="Trend by period"></canvas></div><p class="ins" id="ins2"></p></div>
+      <div class="card"><h2>Where points are lost</h2><p class="sub" id="cCS">Points lost by component, lowest scorers</p><div class="cbox"><canvas id="chC" role="img" aria-label="Points lost by component"></canvas></div><p class="ins" id="ins3"></p></div>
+    </div>
+    <div class="grid3">
+      <div class="card"><h2>Average score by category</h2><p class="sub">SDRs in view, with the number of SDRs in each category</p><div class="cbox"><canvas id="chD" role="img" aria-label="Average score by category"></canvas></div><p class="ins" id="ins4"></p></div>
+      <div class="card"><h2>Score distribution</h2><p class="sub">Number of SDRs in each score band</p><div class="cbox"><canvas id="chE" role="img" aria-label="Score distribution"></canvas></div><p class="ins" id="ins5"></p></div>
+      <div class="card"><h2>Full-marks tests passed</h2><p class="sub">How many of the six tests each SDR passes</p><div class="cbox"><canvas id="chF" role="img" aria-label="Tests passed"></canvas></div><p class="ins" id="ins6"></p></div>
+    </div>
+    </div></section>
+
+<section id="p-lost" hidden><div class="in main">
+  <div class="pagehead"><h2>Points lost</h2><p id="lostLine">Where every SDR lost points, and why.</p></div>
+  <div class="card tcard"><div class="thead"><div><h2>A. Across all SDRs in view</h2><p class="sub" style="margin:0">Points each part can give, what the team earned, and how many SDRs lost points there</p></div></div><div class="scroll" id="lostA"></div></div>
+  <div class="card tcard"><div class="thead"><div><h2>B. Per SDR: points not earned, and the reason</h2><p class="sub" style="margin:0" id="lostBS"></p></div></div><div class="scroll" id="lostB"></div></div>
+</div></section>
+<div id="layer"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+/* ===== STAR SDR engine: scoring formulas, reasons, and the workbook reader =====
+   Mirrors the team workbook (Scoring, Points Lost and Settings tabs). Shared by the dashboard page and the daily refresh script. */
+
+const DEFAULT_SETTINGS = {
+  weights: { cvr: 40, att: 20, q: 20, cad: 10, nv: 5, fu: 5 },
+  attTarget: 1, lateLimit: 0.1, presenceShare: 0.75, qTarget: 100, fuWindow: 30,
+  ageLimit: { w: 10, cc: 4, int: 7 },
+  nvShareMedical: 0.2, nvShareOther: 0.1,
+  style: 'Graded', nvRule: 'Max', noLeadsOk: true, punct: 'All-or-nothing',
+  warmT: {
+    'Medical': { ppc: .6, sms: .12, cp: .08, org: .27, em: .15, ai: .06 },
+    'HR': { ppc: .5, sms: .18, cp: .27, org: .35, em: .25, ai: .1 },
+    'LMS': { ppc: .25, sms: .17, cp: .35, org: .15, em: .27, ai: 0 },
+    'Legal': { ppc: .42, sms: .23, cp: .23, org: .15, em: .42, ai: 0 },
+    'CMMS': { ppc: .3, sms: .18, cp: .25, org: .35, em: .35, ai: 0 },
+    'FSM': { ppc: 0, sms: .4, cp: .5, org: .25, em: .13, ai: 0 },
+    'PM': { ppc: .25, sms: .12, cp: .1, org: .05, em: .09, ai: 0 },
+    'Others': { ppc: 0, sms: 0, cp: 0, org: 0, em: 0, ai: 0 },
+    'Non Medical': { ppc: .305, sms: .22, cp: .286, org: .19, em: .252, ai: 0 }
+  },
+  coldT: { 'Medical': { cc: .08, int: .3 }, 'Non Medical': { cc: .06, int: .5 } }
+};
+const WARM_SRC = ['ppc', 'sms', 'cp', 'org', 'em', 'ai'];
+const COLD_SRC = ['cc', 'int'];
+const SRC_LABEL = { ppc: 'PPC', sms: 'SMS', cp: 'Channel Partner', org: 'Organic', em: 'Email', ai: 'AI', cc: 'Cold Call', int: 'Internal Campaigns' };
+const COMPS = [
+  { k: 'cvr', label: 'CVR' }, { k: 'att', label: 'Attendance' }, { k: 'q', label: 'Quality' },
+  { k: 'cad', label: 'Cadence' }, { k: 'nv', label: 'Non-Voice' }, { k: 'fu', label: 'Follow-up' }
+];
+const num = v => (v === null || v === undefined || v === '' || isNaN(+v)) ? null : +v;
+const r2 = x => Math.round(x * 100 + (x >= 0 ? 1e-9 : -1e-9)) / 100;
+const rnd = (x, d) => { const f = Math.pow(10, d); return Math.round(x * f + 1e-9) / f; };
+const pct1 = x => x == null ? '–' : (Math.round(x * 1000 + 1e-9) / 10).toFixed(1) + '%';
+const pct0 = x => x == null ? '–' : Math.round(x * 100 + 1e-9) + '%';
+const dec1 = x => x == null ? '–' : (Math.round(x * 10 + 1e-9) / 10).toFixed(1);
+
+/* ---------- scoring (one row per SDR, as on the Scoring tab) ---------- */
+function scoreRow(r, S) {
+  const W = S.weights, warm = r.t === 'Warm', out = {};
+  const cv = r.cv || {}, detail = [];
+  const tbl = S.warmT[r.c], cold = S.coldT[r.c], att = [];
+  WARM_SRC.forEach(k => {
+    const v = num(cv[k]); if (v === null || !warm) return;
+    const t = tbl ? tbl[k] : undefined; if (t === undefined || t <= 0) return;
+    att.push(Math.min(1, v / t)); detail.push({ k, v, t, a: Math.min(1, v / t) });
+  });
+  COLD_SRC.forEach(k => {
+    const v = num(cv[k]); if (v === null || warm) return;
+    const t = cold ? cold[k] : undefined; if (t === undefined || t <= 0) return;
+    att.push(Math.min(1, v / t)); detail.push({ k, v, t, a: Math.min(1, v / t) });
+  });
+  out.cvrDetail = detail;
+  out.V = att.length ? att.reduce((a, b) => a + b, 0) / att.length : null;
+  out.cvr = out.V === null ? 0 : out.V * W.cvr;
+  // attendance: presence share scaled to target, plus punctuality
+  const at = num(r.at);
+  const late = at === null ? null : (num(r.lt) === null ? 0 : +r.lt);
+  out.late = late;
+  out.presence = at === null ? 0 : W.att * S.presenceShare * Math.min(1, at / S.attTarget);
+  out.punct = late === null ? 0 : W.att * (1 - S.presenceShare) * (late < S.lateLimit ? 1 : (S.punct === 'Graded' ? S.lateLimit / late : 0));
+  out.att = out.presence + out.punct;
+  // quality
+  const q = num(r.q);
+  out.q = q === null ? 0 : W.q * Math.min(1, q / S.qTarget);
+  // cadence: average of the lead-age segments this SDR works
+  const la = r.la || {}, lw = num(la.w), lc = num(la.cc), li = num(la.int);
+  const seg = (v, lim) => v === null ? null : (v < lim ? 1 : (S.style === 'Strict' ? 0 : lim / v));
+  const segs = [warm ? seg(lw, S.ageLimit.w) : null, warm ? null : seg(lc, S.ageLimit.cc), warm ? null : seg(li, S.ageLimit.int)].filter(x => x !== null);
+  out.H = segs.length ? segs.reduce((a, b) => a + b, 0) / segs.length : null;
+  out.cad = out.H === null ? 0 : W.cad * out.H;
+  const ages = [warm ? lw : null, warm ? null : lc, warm ? null : li];
+  // non-voice
+  const nv = num(r.nv) === null ? 0 : +r.nv, ak = r.c === 'Medical' ? S.nvShareMedical : S.nvShareOther;
+  out.nvShare = nv; out.nvTarget = ak;
+  const nvf = S.nvRule === 'Max' ? (nv <= ak ? 1 : (S.style === 'Strict' ? 0 : ak / nv)) : (nv >= ak ? 1 : (S.style === 'Strict' ? 0 : nv / ak));
+  out.nv = W.nv * nvf;
+  // follow-up
+  const fl = num(r.fl) || 0, fc = num(r.fc) || 0;
+  out.fl = fl; out.fc = fc; out.fuPct = fl === 0 ? null : fc / fl;
+  out.fu = W.fu * (fl === 0 ? (S.noLeadsOk ? 1 : 0) : (fc === fl ? 1 : (S.style === 'Strict' ? 0 : fc / fl)));
+  out.total = r2(out.cvr + out.att + out.q + out.cad + out.nv + out.fu);
+  // full-marks tests
+  const t = {};
+  t.cvr = out.V !== null && rnd(out.V, 9) >= 1;
+  t.att = at !== null && rnd(at, 6) >= S.attTarget && late < S.lateLimit;
+  t.q = q !== null && q >= S.qTarget;
+  const lim = [S.ageLimit.w, S.ageLimit.cc, S.ageLimit.int];
+  t.cad = ages.some(a => a !== null) && ages.every((a, i) => a === null || a < lim[i]);
+  t.nv = S.nvRule === 'Max' ? nv <= ak : nv >= ak;
+  t.fu = fl === 0 ? !!S.noLeadsOk : fc === fl;
+  out.tests = t; out.full = Object.values(t).filter(Boolean).length; out.star = out.full === 6;
+  out.lost = { cvr: r2(W.cvr - out.cvr), att: r2(W.att - out.att), q: r2(W.q - out.q), cad: r2(W.cad - out.cad), nv: r2(W.nv - out.nv), fu: r2(W.fu - out.fu) };
+  out.lostSplit = { presence: r2(W.att * S.presenceShare - out.presence), punct: r2(W.att * (1 - S.presenceShare) - out.punct) };
+  let gk = 'cvr', gm = out.lost.cvr;
+  COMPS.forEach(c => { if (out.lost[c.k] > gm) { gm = out.lost[c.k]; gk = c.k; } });
+  out.gapKey = out.star ? null : gk; out.gapPts = gm;
+  out.pts = { cvr: out.cvr, att: out.att, q: out.q, cad: out.cad, nv: out.nv, fu: out.fu };
+  return out;
+}
+/* rank = same number for equal totals; position breaks ties by CVR points, then quality points (as the workbook does) */
+function scoreAll(rows, S) {
+  const list = rows.map((r, i) => ({ r, s: scoreRow(r, S), i }));
+  const key = x => x.s.total + x.s.cvr / 1e5 + x.s.q / 1e9 - x.i / 1e12;
+  list.slice().sort((a, b) => key(b) - key(a)).forEach((x, p) => { x.pos = p + 1; });
+  list.forEach(x => { x.rank = 1 + list.filter(y => y.s.total > x.s.total).length; });
+  return list.slice().sort((a, b) => a.pos - b.pos);
+}
+
+/* ---------- the plain-English reasons and data notes the workbook shows ---------- */
+function whyOf(r, s, S) {
+  const w = {}, cv = r.cv || {}, warm = r.t === 'Warm';
+  const aiRow = warm && num(cv.ai) !== null && !s.cvrDetail.some(d => d.k === 'ai');
+  if (s.lost.cvr < 0.005) w.cvr = 'Full marks';
+  else if (s.V === null) w.cvr = 'No target-eligible CVR source. ' + (aiRow ? 'AI not scored (no AI target for this category). ' : '');
+  else w.cvr = s.cvrDetail.filter(d => d.a < 1).map(d => SRC_LABEL[d.k] + ' ' + pct1(d.v) + ' vs ' + pct0(d.t) + ' target; ').join('') + (aiRow ? 'AI not scored (no AI target for this category). ' : '');
+  const at = num(r.at);
+  w.presence = at === null ? 'No attendance data' : (at >= S.attTarget - 1e-6 ? 'Full marks' : 'Attendance ' + pct1(at) + ' vs ' + pct0(S.attTarget) + ' required');
+  w.punct = at === null ? 'No attendance data' : (s.late < S.lateLimit ? 'Full marks (late ' + pct1(s.late) + (num(r.lt) === null ? ', blank = 0%' : '') + ')' : 'Late ' + pct1(s.late) + ' vs limit below ' + pct0(S.lateLimit));
+  const q = num(r.q);
+  w.q = q === null ? 'No quality score' : (q >= S.qTarget ? 'Full marks' : 'Avg quality ' + dec1(q) + ' vs ' + S.qTarget + ' target');
+  const la = r.la || {}, lw = num(la.w), lc = num(la.cc), li = num(la.int), ow = num(la.ow);
+  if (s.H === null) w.cad = 'No lead age data';
+  else if (s.tests.cad) w.cad = 'Full marks';
+  else w.cad = (lw !== null && warm && lw >= S.ageLimit.w ? 'Warm lead age ' + dec1(lw) + ' days vs below ' + S.ageLimit.w + (ow > 0 ? '; ' + ow + ' open aged leads' : '') + '. ' : '') +
+    (lc !== null && !warm && lc >= S.ageLimit.cc ? 'Cold Call lead age ' + dec1(lc) + ' days vs below ' + S.ageLimit.cc + '. ' : '') +
+    (li !== null && !warm && li >= S.ageLimit.int ? 'Internal lead age ' + dec1(li) + ' days vs below ' + S.ageLimit.int + '. ' : '');
+  w.nv = s.tests.nv ? 'Full marks' + (r.nm ? ' (not on Non-Voice sheet, 0% assumed)' : '') : 'Non-voice ' + pct1(s.nvShare) + (S.nvRule === 'Max' ? ' vs cap ' : ' vs minimum ') + pct0(s.nvTarget);
+  w.fu = s.fl === 0 ? (S.noLeadsOk ? 'Full marks (no leads on Follow Up sheet)' : 'No leads on Follow Up sheet') : (s.fc === s.fl ? 'Full marks (' + s.fl + (s.fl === 1 ? ' lead)' : ' leads)') : s.fc + ' of ' + s.fl + ' leads have a follow-up date set within ' + S.fuWindow + ' days');
+  return w;
+}
+function notesOf(r, s, S) {
+  const n = [], at = num(r.at);
+  if (s.V === null) n.push('No target-eligible CVR source.');
+  if (r.co) n.push('Category assumed (' + r.co + ').');
+  if (r.o1) n.push('CVR above 100% on a source (check data).');
+  if (at === null) n.push('No attendance data.'); else if (num(r.lt) === null) n.push('Late % blank, 0% assumed.');
+  if (r.alt) n.push('Matched via alternate spelling.');
+  if (num(r.q) === null) n.push('No quality score.');
+  if (s.H === null) n.push('No lead age data.');
+  if (r.nm) n.push('Not in Non-Voice sheet, 0% assumed.');
+  if (s.fl === 0) n.push('No leads in Follow Up sheet.');
+  return n;
+}
+
+/* ---------- periods ---------- */
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const pad = n => String(n).padStart(2, '0');
+const isoDate = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+function mondayOf(s) { const d = new Date(s + 'T00:00:00'); const k = (d.getDay() + 6) % 7; d.setDate(d.getDate() - k); return d; }
+function isoWeek(d) { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)); return Math.ceil(((t - y0) / 864e5 + 1) / 7); }
+function mkPeriod(kind, dateStr) {
+  if (kind === 'month') { const [y, m] = dateStr.split('-').map(Number); return { id: 'M' + y + '-' + pad(m), kind, start: y + '-' + pad(m) + '-01', year: y, month: m, rows: [] }; }
+  if (kind === 'day') { const s = dateStr.slice(0, 10), [y, m] = s.split('-').map(Number); return { id: 'D' + s, kind, start: s, year: y, month: m, rows: [] }; }
+  const d = mondayOf(dateStr), s = isoDate(d); return { id: 'W' + s, kind, start: s, year: d.getFullYear(), month: d.getMonth() + 1, rows: [] };
+}
+function pEnd(p) {
+  if (p.kind === 'day') return p.start;
+  if (p.kind === 'week') { const d = new Date(p.start + 'T00:00:00'); d.setDate(d.getDate() + 6); return isoDate(d); }
+  return isoDate(new Date(p.year, p.month, 0));
+}
+function plabel(p) {
+  if (p.kind === 'month') return MONL[p.month - 1] + ' ' + p.year;
+  const d = new Date(p.start + 'T00:00:00');
+  if (p.kind === 'day') return DOW[d.getDay()] + ' ' + d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear();
+  const e = new Date(d); e.setDate(e.getDate() + 6);
+  return 'Week ' + isoWeek(d) + ' · ' + d.getDate() + ' ' + MON[d.getMonth()] + ' – ' + e.getDate() + ' ' + MON[e.getMonth()];
+}
+function tlabel(p) {
+  const d = new Date(p.start + 'T00:00:00');
+  return p.kind === 'month' ? MON[p.month - 1] + ' ' + String(p.year).slice(2) : p.kind === 'day' ? d.getDate() + ' ' + MON[d.getMonth()] : 'Wk ' + isoWeek(d);
+}
+
+/* ---------- reading the team workbook ---------- */
+const _low = s => String(s == null ? '' : s).trim().toLowerCase();
+const _n = v => (v === null || v === undefined || v === '' || isNaN(+v)) ? null : +v;
+const _days = v => v instanceof Date ? v.getTime() / 864e5 : (typeof v === 'number' ? v : (typeof v === 'string' && v.trim() && !isNaN(Date.parse(v)) ? Date.parse(v) / 864e5 : null));
+const SHEETS = {
+  wcvr: { label: 'Warm CVR', re: /^warm\s*cvr$/i }, ccvr: { label: 'Cold CVR', re: /^cold\s*cvr$/i }, att: { label: 'Attendance', re: /^attendance$/i },
+  wq: { label: 'Warm Quality', re: /^warm\s*qua/i }, cq: { label: 'Cold and Internal Quality', re: /^cold.*qua/i },
+  lac: { label: 'Lead Age Cold Call and Internal', re: /^lead\s*age.*cold/i }, law: { label: 'Lead Age Warm', re: /^lead\s*age.*warm/i },
+  cfu: { label: 'Cold Follow Up', re: /^cold\s*follow/i }, wfu: { label: 'Warm Follow Up', re: /^warm\s*follow/i }, nv: { label: 'Non-Voice', re: /^non.?voice$/i }
+};
+const WSRC = { 'ppc': 'ppc', 'sms': 'sms', 'channel partner': 'cp', 'organic': 'org', 'email': 'em', 'ai': 'ai' };
+function hasRawSheets(wb) { return wb.SheetNames.some(n => SHEETS.wcvr.re.test(n.trim()) || SHEETS.ccvr.re.test(n.trim())); }
+function isoOf(v) {
+  if (v === null || v === undefined || v === '') return null;
+  if (v instanceof Date) return isNaN(v) ? null : isoDate(v);
+  if (typeof v === 'number') { if (v < 20000 || v > 80000) return null; const d = new Date(Date.UTC(1899, 11, 30) + Math.floor(v) * 864e5); return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()); }
+  const s = String(v).trim(); let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/); if (m) return m[1] + '-' + m[2] + '-' + m[3];
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); if (m) return m[3] + '-' + pad(+m[1]) + '-' + pad(+m[2]);
+  const d = new Date(s); return isNaN(d) ? null : isoDate(d);
+}
+const settingsSheet = wb => wb.SheetNames.find(x => /^(settings|targets)$/i.test(x.trim()));
+function settingsFromWorkbook(wb) {
+  const nm = settingsSheet(wb); if (!nm) return null;
+  const a = XLSX.utils.sheet_to_json(wb.Sheets[nm], { header: 1, raw: true, defval: null });
+  const val = re => { const r = a.find(x => typeof x[0] === 'string' && re.test(_low(x[0]))); return r ? r[1] : null; };
+  const n = re => _n(val(re)), S = { weights: {}, ageLimit: {} };
+  const set = (o, k, v) => { if (v !== null && v !== undefined) o[k] = v; };
+  [['cvr', /^cvr %?$/], ['att', /^attendance$/], ['q', /^quality$/], ['cad', /^cadence/], ['nv', /^non-?voice$/], ['fu', /^follow-?up$/]].forEach(([k, re]) => set(S.weights, k, n(re)));
+  set(S, 'attTarget', n(/^attendance target/)); set(S, 'lateLimit', n(/^late % limit/)); set(S, 'presenceShare', n(/^share of attendance points/)); set(S, 'qTarget', n(/^quality target/)); set(S, 'fuWindow', n(/^follow-?up window/));
+  set(S.ageLimit, 'cc', n(/^lead age limit: cold/)); set(S.ageLimit, 'int', n(/^lead age limit: internal/)); set(S.ageLimit, 'w', n(/^lead age limit: warm/));
+  set(S, 'nvShareMedical', n(/^non-?voice share: medical/)); set(S, 'nvShareOther', n(/^non-?voice share: all other/));
+  const sw = re => { const v = val(re); return v === null ? null : String(v).trim(); };
+  const style = sw(/^scoring style/); if (style) S.style = /^s/i.test(style) ? 'Strict' : 'Graded';
+  const nvr = sw(/^non-?voice rule/); if (nvr) S.nvRule = /^min/i.test(nvr) ? 'Min' : 'Max';
+  const nl = sw(/^no leads listed/); if (nl) S.noLeadsOk = /^y/i.test(nl);
+  const pu = sw(/^punctuality rule/); if (pu) S.punct = /^g/i.test(pu) ? 'Graded' : 'All-or-nothing';
+  const table = (hRe, keys) => { const i = a.findIndex(r => _low(r[0]) === 'category' && hRe.test(_low(r[1]))); if (i < 0) return null; const t = {}; for (let j = i + 1; j < a.length && a[j][0] && typeof a[j][0] === 'string' && _n(a[j][1]) !== null; j++) { const o = {}; keys.forEach((k, c) => { o[k] = _n(a[j][c + 1]) || 0; }); t[String(a[j][0]).trim()] = o; } return t; };
+  const wt = table(/^ppc$/, WARM_SRC), ct = table(/^cold call$/, COLD_SRC); if (wt) S.warmT = wt; if (ct) S.coldT = ct;
+  return S;
+}
+function reportingLabel(wb) {
+  const nm = settingsSheet(wb); if (!nm) return null;
+  const a = XLSX.utils.sheet_to_json(wb.Sheets[nm], { header: 1, raw: true, defval: null });
+  const r = a.find(x => typeof x[0] === 'string' && /^reporting period/i.test(x[0].trim())); if (!r || !r[1]) return null;
+  const m = String(r[1]).match(/([A-Za-z]+)\s+(\d{4})/); if (!m) return null;
+  const i = MONL.findIndex(x => x.toLowerCase().startsWith(m[1].slice(0, 3).toLowerCase())); return i < 0 ? null : m[2] + '-' + pad(i + 1);
+}
+/* the Scoring tab holds the SDR list and two hand-typed inputs per SDR: a category override and an alternate spelling */
+function scoringInputs(wb) {
+  const nm = wb.SheetNames.find(x => /^scoring$/i.test(x.trim())); if (!nm) return null;
+  const a = XLSX.utils.sheet_to_json(wb.Sheets[nm], { header: 1, raw: true, defval: null });
+  const hi = a.findIndex(r => _low(r[0]) === 'sdr' && /override/.test(_low(r[3]))); if (hi < 0) return null;
+  const names = [], ov = new Map(), alt = new Map();
+  for (let i = hi + 1; i < a.length; i++) {
+    const nme = String(a[i][0] == null ? '' : a[i][0]).trim(); if (!nme || /^(total|average)/i.test(nme)) continue;
+    names.push(nme); const o = String(a[i][3] == null ? '' : a[i][3]).trim(); if (o) ov.set(_low(nme), o);
+    const e = String(a[i][4] == null ? '' : a[i][4]).trim(); if (e) alt.set(_low(nme), _low(e));
+  }
+  return names.length ? { names, ov, alt } : null;
+}
+
+function periodsFromWorkbook(wb, win) {
+  const rows = {}, hdr = {}, found = [], missing = [], settings = settingsFromWorkbook(wb) || {};
+  Object.keys(SHEETS).forEach(k => {
+    const nm = wb.SheetNames.find(x => SHEETS[k].re.test(x.trim()));
+    if (!nm) { rows[k] = []; hdr[k] = []; missing.push(SHEETS[k].label); return; }
+    const a = XLSX.utils.sheet_to_json(wb.Sheets[nm], { header: 1, raw: true, defval: null });
+    hdr[k] = (a[0] || []).map(_low); rows[k] = a.slice(1).filter(r => r.some(c => c !== null && c !== '')); found.push(SHEETS[k].label);
+  });
+  const tagged = ['wcvr', 'ccvr', 'att', 'wq', 'cq', 'lac', 'law', 'nv'], per = new Map(), by = {};
+  let datedSheets = 0;
+  tagged.forEach(k => {
+    by[k] = {}; const it = hdr[k].indexOf('period type'), id = hdr[k].indexOf('period date'); if (it < 0 || id < 0) return;
+    datedSheets++;
+    rows[k].forEach(r => {
+      const t = _low(r[it]), iso = isoOf(r[id]), kind = t[0] === 'd' ? 'day' : t[0] === 'w' ? 'week' : t[0] === 'm' ? 'month' : null;
+      if (!kind || !iso) return;
+      const p = mkPeriod(kind, kind === 'month' ? iso.slice(0, 7) : iso); if (!per.has(p.id)) per.set(p.id, p);
+      (by[k][p.id] = by[k][p.id] || []).push(r);
+    });
+  });
+  // a workbook without Period columns is one monthly report named on the Settings tab
+  let undated = false;
+  if (!datedSheets) {
+    const lab = reportingLabel(wb); if (!lab) return { periods: [], found, missing, ignored: {}, team: 0, undated: true };
+    const p = mkPeriod('month', lab); per.set(p.id, p); undated = true;
+    tagged.forEach(k => { by[k] = { [p.id]: rows[k] }; });
+  }
+  const asc = [...per.values()].sort((a, b) => a.start < b.start ? -1 : 1);
+  const cats = Object.keys(settings.warmT || DEFAULT_SETTINGS.warmT);
+  const catOf = (track, raw) => {
+    const l = _low(raw);
+    if (track === 'Cold & Internal') return l === 'med' ? 'Medical' : l === 'non-med' ? 'Non Medical' : 'Unknown';
+    const hit = cats.find(c => c.toLowerCase() === l); return hit || 'Unknown';
+  };
+  // who is on the team, and each one's track and category
+  const inputs = scoringInputs(wb);
+  const disp = new Map(), coldSeen = new Set(), firstCat = new Map();
+  asc.forEach(p => {
+    (by.wcvr[p.id] || []).forEach(r => { const l = _low(r[0]); if (!l) return; if (!disp.has(l)) disp.set(l, String(r[0]).trim()); if (!firstCat.has(l)) firstCat.set(l, r[3]); });
+    (by.ccvr[p.id] || []).forEach(r => { const l = _low(r[0]); if (!l) return; if (!disp.has(l)) disp.set(l, String(r[0]).trim()); coldSeen.add(l); firstCat.set(l, r[3]); });
+  });
+  const roster = inputs ? inputs.names.map(n => _low(n)) : [...disp.keys()];
+  if (inputs) inputs.names.forEach(n => disp.set(_low(n), n));
+  const rosterSet = new Set(roster), altOf = inputs ? inputs.alt : new Map();
+  const avg = a => a && a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+  const byName = (k, id, useAlt) => {
+    const m = new Map(); (by[k][id] || []).forEach(r => { const l = _low(r[0]); if (l && !m.has(l)) m.set(l, r); });
+    return l => m.get(l) || (useAlt && altOf.get(l) ? m.get(altOf.get(l)) : undefined);
+  };
+  const col = (k, re, fb) => { const i = hdr[k].findIndex(h => re.test(h)); return i >= 0 ? i : fb; };
+  const wOwn = col('wfu', /contact owner/, 5), wSub = col('wfu', /sub status.*follow/, 7), wDate = col('wfu', /lead date|create date/, 9);
+  const cOwn = col('cfu', /contact owner/, 6), cSub = col('cfu', /sub status.*follow/, 11), cDate = col('cfu', /create date|lead date/, 9);
+  // names that appear on the raw tabs but are not on the SDR list are ignored, as in the workbook
+  const ignored = {};
+  tagged.forEach(k => Object.values(by[k]).forEach(arr => arr.forEach(r => { const n = String(r[0] == null ? '' : r[0]).trim(), l = _low(n); if (l && !rosterSet.has(l) && ![...altOf.values()].includes(l)) (ignored[SHEETS[k].label] = ignored[SHEETS[k].label] || new Set()).add(l); })));
+  const periods = [];
+  asc.forEach(p => {
+    const end = pEnd(p), mine = k => by[k][p.id] || [];
+    const wc = new Map(), cc = new Map(), over = new Set();
+    mine('wcvr').forEach(r => { const l = _low(r[0]), v = _n(r[1]); if (!rosterSet.has(l) || v === null) return; if (v > 1) over.add(l); const k = WSRC[_low(r[2])]; if (k) { const o = wc.get(l) || {}; o[k] = (o[k] || 0) + v; wc.set(l, o); } });
+    mine('ccvr').forEach(r => { const l = _low(r[0]), s = _low(r[2]), v = _n(r[1]); if (!rosterSet.has(l) || v === null) return; if (v > 1) over.add(l); const o = cc.get(l) || {}; if (s === 'cold call') o.cc = (o.cc || 0) + v; else if (s === 'internal campaigns') o.int = (o.int || 0) + v; cc.set(l, o); });
+    const attM = byName('att', p.id, true), wqM = byName('wq', p.id), cqM = byName('cq', p.id), lawM = byName('law', p.id, true), nvM = byName('nv', p.id), lacM = new Map();
+    mine('lac').forEach(r => { const l = _low(r[0]), v = _n(r[2]), s = _low(r[1]); if (!rosterSet.has(l) || v === null) return; const key = s === 'cold outreach' ? 'cc' : s === 'internal campaigns' ? 'int' : null; if (!key) return; const o = lacM.get(l) || { cc: [], int: [] }; o[key].push(v); lacM.set(l, o); });
+    const fu = (k, own, sub, dt) => { const m = new Map(); rows[k].forEach(r => { const l = _low(r[own]); if (!rosterSet.has(l)) return; if (!undated) { const iso = isoOf(r[dt]); if (!iso || iso < p.start || iso > end) return; } const o = m.get(l) || { fl: 0, fc: 0 }; o.fl++; const h = _days(r[sub]), d = _days(r[dt]); if (h !== null && d !== null && (h - d) <= win) o.fc++; m.set(l, o); }); return m; };
+    const wfuM = fu('wfu', wOwn, wSub, wDate), cfuM = fu('cfu', cOwn, cSub, cDate);
+    const out = [];
+    roster.forEach(l => {
+      const cold = coldSeen.has(l), track = cold ? 'Cold & Internal' : 'Warm', ovr = inputs && inputs.ov.get(l);
+      const o = { n: disp.get(l), t: track, c: ovr || catOf(track, firstCat.get(l)), cv: {}, la: {} };
+      if (ovr) o.co = ovr;
+      if (cold) { const x = cc.get(l) || {}; o.cv.cc = x.cc === undefined ? null : x.cc; o.cv.int = x.int === undefined ? null : x.int; }
+      else { const x = wc.get(l) || {}; WARM_SRC.forEach(k => { o.cv[k] = x[k] === undefined ? null : x[k]; }); }
+      if (over.has(l)) o.o1 = 1;
+      const a = attM(l); o.at = a ? _n(a[1]) : null; o.lt = a ? _n(a[2]) : null;
+      if (altOf.has(l)) o.alt = 1;
+      const q = (cold ? cqM : wqM)(l); o.q = q ? _n(q[1]) : null;
+      if (cold) { const x = lacM.get(l); o.la = { cc: x ? avg(x.cc) : null, int: x ? avg(x.int) : null }; }
+      else { const x = lawM(l); o.la = { w: x ? _n(x[1]) : null, ow: x ? _n(x[2]) : null }; }
+      const nvr = nvM(l); o.nv = nvr ? (_n(nvr[1]) || 0) : 0; if (!nvr) o.nm = 1;
+      const f = (cold ? cfuM : wfuM).get(l) || { fl: 0, fc: 0 }; o.fl = f.fl; o.fc = f.fc;
+      out.push(o);
+    });
+    // a period is kept only when the raw tabs hold something for it
+    const any = ['wcvr', 'ccvr', 'att', 'wq', 'cq', 'lac', 'law', 'nv'].some(k => mine(k).length) || wfuM.size || cfuM.size;
+    if (any && out.length) { p.rows = out; periods.push(p); }
+  });
+  return { periods, found, missing, undated, team: roster.length, ignored: Object.fromEntries(Object.entries(ignored).map(([k, v]) => [k, v.size])) };
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { DEFAULT_SETTINGS, scoreRow, scoreAll, whyOf, notesOf, periodsFromWorkbook, settingsFromWorkbook, hasRawSheets, COMPS };
+}
+/* ===== STAR dashboard: reads the periods the daily refresh saved and shows them ===== */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const f1 = x => (Math.round(x * 10 + 1e-9) / 10).toFixed(1);
+const f2 = x => (Math.round(x * 100 + 1e-9) / 100).toFixed(2);
+const CKEY = { cvr: '--r1', att: '--r2', q: '--r3', cad: '--r4', nv: '--r5', fu: '--r6' };
+const COMP_BY = k => COMPS.find(c => c.k === k);
+const initials = n => String(n).trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
+const hexA = (hex, a) => { const h = String(hex).replace('#', ''); if (h.length !== 6) return hex; const v = parseInt(h, 16); return 'rgba(' + (v >> 16) + ',' + ((v >> 8) & 255) + ',' + (v & 255) + ',' + a + ')'; };
+const TIP = {
+  cvr: "Conversion rate against the target for the SDR's category and lead source", att: 'Attendance and punctuality', q: 'Average quality score',
+  cad: 'How fresh the open leads are', nv: 'Share of activity that was non-voice', fu: 'Leads followed up inside the follow-up window'
+};
+const GUIDE = {
+  cvr: S => "Each lead source's conversion rate is compared with the target for the SDR's category. Attainment per source is capped at 100%, and the average sets the points.",
+  att: S => 'Attendance against a ' + pct0(S.attTarget) + ' target earns ' + pct0(S.presenceShare) + ' of the points. The rest rewards staying under ' + pct0(S.lateLimit) + ' late.',
+  q: S => 'Average quality score against a target of ' + S.qTarget + '.',
+  cad: S => 'Open lead age must stay under ' + S.ageLimit.w + ' days for Warm, or ' + S.ageLimit.cc + ' days for Cold Call and ' + S.ageLimit.int + ' days for Internal.',
+  nv: S => 'Non-voice share must stay ' + (S.nvRule === 'Max' ? 'at or below ' : 'at or above ') + pct0(S.nvShareMedical) + ' for Medical and ' + pct0(S.nvShareOther) + ' for other categories.',
+  fu: S => 'Leads followed up within ' + S.fuWindow + ' days of the lead date, as a share of all leads assigned.'
+};
+const st = {
+  periods: [], settings: clone(DEFAULT_SETTINGS), sync: null, loaded: false, db: null, tab: 'dash', drawer: null,
+  f: { view: 'month', pid: 'latest', sdrs: new Set(), track: 'all', cat: 'all', focus: 'overall', below: false }
+};
+let charts = {}, firstLoad = true;
+
+function mergeSettings(v) {
+  const S = clone(DEFAULT_SETTINGS);
+  Object.keys(v || {}).forEach(k => { if (v[k] && typeof v[k] === 'object' && !Array.isArray(v[k])) S[k] = Object.assign({}, S[k], v[k]); else S[k] = v[k]; });
+  ['warmT', 'coldT'].forEach(g => { if ((v || {})[g]) { S[g] = {}; Object.keys(v[g]).forEach(c => { S[g][c] = Object.assign({}, (DEFAULT_SETTINGS[g][c] || {}), v[g][c]); }); } });
+  return S;
+}
+
+/* ---------- periods and filters ---------- */
+const VIEWS = [['month', 'Monthly'], ['week', 'Weekly'], ['day', 'Daily']];
+const periodsOf = kind => st.periods.filter(p => p.kind === kind).sort((a, b) => a.start < b.start ? 1 : -1);
+function pickPeriod() { const l = periodsOf(st.f.view); return l.find(p => p.id === st.f.pid) || l[0] || null; }
+function defaultFilter() { st.f.view = ['month', 'week', 'day'].find(k => st.periods.some(p => p.kind === k)) || 'month'; st.f.pid = 'latest'; }
+function syncText() {
+  if (!st.sync || !st.sync.at) return 'Not refreshed yet';
+  const d = new Date(st.sync.at); return d.getDate() + ' ' + MON[d.getMonth()] + ', ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+function compute() {
+  const p = pickPeriod(), S = st.settings, f = st.f;
+  const all = p ? scoreAll(p.rows, S) : [];
+  all.forEach(x => { x.why = whyOf(x.r, x.s, S); x.notes = notesOf(x.r, x.s, S); });
+  const test = x => f.focus === 'overall' ? x.s.star : x.s.tests[f.focus];
+  const val = x => f.focus === 'overall' ? x.s.total : x.s.pts[f.focus];
+  let vis = all.filter(x => (f.sdrs.size === 0 || f.sdrs.has(x.r.n)) && (f.track === 'all' || x.r.t === f.track) && (f.cat === 'all' || x.r.c === f.cat) && (!f.below || !test(x)));
+  vis = vis.slice().sort((a, b) => val(b) - val(a) || a.pos - b.pos);
+  return { p, all, vis, S, val };
+}
+function fillFilters(C) {
+  const f = st.f, S = st.settings;
+  const sel = (id, opts, cur) => { $(id).innerHTML = opts.map(o => `<option value="${esc(o[0])}"${String(o[0]) === String(cur) ? ' selected' : ''}>${esc(o[1])}</option>`).join(''); };
+  sel('#fView', VIEWS, f.view);
+  const pl = periodsOf(f.view), cur = pickPeriod();
+  sel('#fPeriod', pl.length ? pl.map(p => [p.id, plabel(p)]) : [['latest', 'No data yet']], cur ? cur.id : 'latest');
+  const rows = cur ? cur.rows : [];
+  sel('#fCat', [['all', 'All categories']].concat([...new Set(rows.map(r => r.c).filter(Boolean))].map(c => [c, c])), f.cat);
+  $('#fTrack').value = f.track;
+  const q = ($('#msq').value || '').toLowerCase();
+  const names = [...new Set(rows.map(r => r.n))].sort((a, b) => a.localeCompare(b));
+  $('#msl').innerHTML = names.filter(n => n.toLowerCase().includes(q)).map(n => `<label><input type="checkbox" data-n="${esc(n)}"${f.sdrs.has(n) ? ' checked' : ''}> ${esc(n)}</label>`).join('') || '<span class="note">No SDRs yet</span>';
+  $('#msTxt').textContent = f.sdrs.size === 0 ? 'All SDRs' : f.sdrs.size === 1 ? [...f.sdrs][0] : f.sdrs.size + ' SDRs selected';
+  const opts = [['overall', 'Overall', null]].concat(COMPS.map(c => [c.k, c.label, c.k]));
+  $('#focus').innerHTML = '<span class="lbl">Focus on</span>' + opts.map(o => `<button class="chip" type="button" data-focus="${o[0]}" aria-pressed="${f.focus === o[0]}">${o[1]}${o[2] ? ' <small>' + S.weights[o[2]] + '</small>' : ''}</button>`).join('') +
+    `<label class="chk"><input type="checkbox" id="fBelow"${f.below ? ' checked' : ''}> Only below full marks</label>`;
+}
+
+/* ---------- render ---------- */
+function render() {
+  const C = compute(), p = C.p;
+  fillFilters(C);
+  $('#meta').innerHTML = p ? '<b>' + esc(plabel(p)) + '</b> · refreshed ' + esc(syncText()) : (st.loaded ? 'No data yet' : 'Loading…');
+  $('#p-dash').hidden = st.tab !== 'dash'; $('#p-charts').hidden = st.tab !== 'charts'; $('#p-lost').hidden = st.tab !== 'lost';
+  $$('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === st.tab));
+  if (!p) {
+    $('#body').hidden = true; $('#scopeLine').textContent = st.loaded ? 'Waiting for the first refresh from the team workbook' : 'Loading…';
+    $('#empty').innerHTML = `<div class="card empty"><h3>${st.loaded ? 'No scores to show yet' : 'Loading the latest data'}</h3><p>${st.loaded ? 'The dashboard fills from the team workbook every morning.' : 'One moment.'}</p></div>`;
+    $('#lostA').innerHTML = ''; $('#lostB').innerHTML = ''; $('#p-dash').hidden = false; $('#p-charts').hidden = true; $('#p-lost').hidden = true; return;
+  }
+  $('#empty').innerHTML = ''; $('#body').hidden = false;
+  if (st.tab === 'dash') renderDash(C); else if (st.tab === 'charts') renderCharts(C); else renderLost(C);
+  if (st.drawer) redrawPanel();
+}
+function renderDash(C) {
+  const f = st.f, { vis, all, S, p } = C, W = S.weights, n = vis.length;
+  const warmN = x => x.filter(y => y.r.t === 'Warm').length;
+  $('#scopeLine').textContent = plabel(p) + ' · ' + all.length + ' SDRs ranked · ' + warmN(all) + ' Warm, ' + (all.length - warmN(all)) + ' Cold & Internal';
+  $('#howBody').innerHTML = COMPS.map(c => `<div><h3>${c.label}<em>${W[c.k]} pts</em></h3><p>${esc(GUIDE[c.k](S))}</p></div>`).join('') +
+    `<div><h3>STAR SDR<em>6 of 6</em></h3><p>Full marks on all six tests earns the STAR SDR badge. ${S.style === 'Strict' ? 'Rules are strict: missing a limit scores zero for that part.' : 'Rules are graded: missing a limit by a little still earns partial points.'} Ties are broken by CVR points, then quality points.</p></div>`;
+  const focusName = f.focus === 'overall' ? 'Overall score' : COMP_BY(f.focus).label, fmax = f.focus === 'overall' ? 100 : W[f.focus];
+  const val = C.val, avg = n ? vis.reduce((a, x) => a + val(x), 0) / n : 0;
+  const avgOf = arr => arr.length ? arr.reduce((a, x) => a + val(x), 0) / arr.length : null;
+  const wv = vis.filter(x => x.r.t === 'Warm'), cv = vis.filter(x => x.r.t !== 'Warm');
+  const stars = vis.filter(x => x.s.star), top = vis.slice().sort((a, b) => b.s.total - a.s.total || a.pos - b.pos)[0];
+  const topVal = vis[0];
+  $('#kpis').innerHTML = [
+    ['SDRs in view', n + ' of ' + all.length, wv.length + ' Warm · ' + cv.length + ' Cold & Internal'],
+    ['Top scorer', topVal ? esc(topVal.r.n) : '–', topVal ? f2(val(topVal)) + (f.focus === 'overall' ? ' of 100' : ' of ' + fmax) + ' points' : ''],
+    ['Period', esc(plabel(p)), p.kind === 'month' ? 'Monthly view' : p.kind === 'week' ? 'Weekly view' : 'Daily view'],
+    ['Data refreshed', esc(syncText()), 'From the team workbook']
+  ].map(k => `<div><span>${k[0]}</span><b>${k[1]}</b><small>${k[2]}</small></div>`).join('');
+  const gapTxt = top && !top.s.star ? 'Biggest gap: ' + COMP_BY(top.s.gapKey).label + ' (−' + f1(top.s.gapPts) + ')' : 'Top scorer has full marks';
+  $('#bigs').innerHTML = [
+    `<div class="bigc"><span class="lbl">${f.focus === 'overall' ? 'Average score' : 'Average ' + esc(focusName)}</span><div class="val">${n ? f1(avg) : '–'}<small> / ${fmax}</small></div><div class="meter"><i style="width:${n ? Math.max(0, Math.min(100, avg / fmax * 100)) : 0}%"></i></div><p>${n ? 'Warm ' + (wv.length ? f1(avgOf(wv)) : '–') + ' · Cold &amp; Internal ' + (cv.length ? f1(avgOf(cv)) : '–') : 'No SDRs match these filters'}</p></div>`,
+    `<div class="bigc"><span class="lbl">STAR SDRs</span><div class="val">${stars.length}<small> of ${n}</small></div><div class="meter"><i style="width:${n ? stars.length / n * 100 : 0}%"></i></div><p>Full marks on all six tests</p>${stars.length ? `<div class="names">${stars.slice(0, 6).map(x => `<span class="badge star">${esc(x.r.n)}</span>`).join('')}${stars.length > 6 ? `<span class="badge">+${stars.length - 6}</span>` : ''}</div>` : ''}</div>`,
+    `<div class="bigc"><span class="lbl">Top scorer's gap to STAR</span><div class="val">${top ? f1(100 - top.s.total) : '–'}<small> pts</small></div><div class="meter"><i style="width:${top ? Math.max(0, top.s.total) : 0}%"></i></div><p>${top ? esc(top.r.n) + ' at ' + f2(top.s.total) + '. ' + esc(gapTxt) : ''}</p></div>`
+  ].join('');
+  $('#comps').innerHTML = COMPS.map(c => {
+    const avgP = n ? vis.reduce((a, x) => a + x.s.pts[c.k], 0) / n : 0, full = vis.filter(x => x.s.tests[c.k]).length;
+    return `<button class="cc" type="button" data-focus="${c.k}" aria-pressed="${f.focus === c.k}"><span class="lbl"><span style="font-weight:700">${c.label}</span><span class="note">${W[c.k]} pts</span></span><div class="val">${f1(avgP)}<small> / ${W[c.k]}</small></div><div class="bar"><i style="width:${W[c.k] ? Math.min(100, avgP / W[c.k] * 100) : 0}%"></i></div><p>${f1(W[c.k] ? avgP / W[c.k] * 100 : 0)}% of the points · ${full} of ${n} at full marks</p></button>`;
+  }).join('');
+  // leaderboard
+  $('#tT').textContent = 'Leaderboard · ' + (f.focus === 'overall' ? 'ranked by total' : 'sorted by ' + focusName);
+  $('#tS').textContent = `${n} of ${all.length} SDRs · rank is the position on the full team`;
+  const head = `<table><thead><tr><th class="n">#</th><th>SDR</th>` + COMPS.map(c => `<th class="n" title="${esc(TIP[c.k])}">${c.label} <span class="th-note">/${W[c.k]}</span></th>`).join('') + `<th class="n">Total</th><th>Full-marks tests</th><th>Biggest gap</th><th>Notes</th></tr></thead><tbody>`;
+  const body = vis.map(x => {
+    const s = x.s, name = esc(x.r.n);
+    const cells = COMPS.map(c => {
+      const pt = s.pts[c.k], full = s.tests[c.k];
+      return `<td class="n${f.focus === c.k ? ' col-on' : ''}"><button class="cellbtn" type="button" data-comp="${c.k}" data-n="${name}" aria-label="${name}, ${c.label} ${f1(pt)} of ${W[c.k]}. Open targets"><span class="mini${full ? ' full' : ''}"><b>${f1(pt)}</b><span class="bar"><i style="width:${Math.max(0, Math.min(100, pt / W[c.k] * 100))}%"></i></span></span></button></td>`;
+    }).join('');
+    const dots = `<span class="tdots">${COMPS.map(c => `<i class="${s.tests[c.k] ? 'on' : ''}" title="${c.label}: ${s.tests[c.k] ? 'full marks' : 'below full marks'}"></i>`).join('')}</span>`;
+    const gap = s.star ? '–' : COMP_BY(s.gapKey).label + ' (−' + f1(s.gapPts) + ')';
+    return `<tr class="lb" tabindex="0" data-n="${name}"><td class="n rk${x.rank <= 3 ? ' top3' : ''}">${x.rank}</td><td><div class="who"><span class="av${x.r.t === 'Warm' ? '' : ' cold'}">${esc(initials(x.r.n))}</span><div>${name}${s.star ? ' <span class="badge star">STAR SDR</span>' : ''}<small>${esc(x.r.t)} · ${esc(x.r.c || 'No category')}</small></div></div></td>${cells}<td class="n tot">${f2(s.total)}</td><td>${dots}<b>${s.full}/6</b></td><td class="gap">${gap}</td><td>${x.notes.length ? `<span class="badge warn" title="${esc(x.notes.join(' '))}">${x.notes.length}</span>` : '<span class="note">–</span>'}</td></tr>`;
+  }).join('');
+  $('#board').innerHTML = head + (body || `<tr><td colspan="12" class="empty">No SDRs match these filters.</td></tr>`) + '</tbody></table>';
+  renderChecks(vis); renderTargets(S);
+  $('#foot').textContent = 'Scores follow the formulas in the team workbook (Scoring tab): graded partial credit, CVR measured against category and lead-source targets. The dashboard refreshes from that workbook every morning.';
+}
+function renderCharts(C) {
+  $('#chartsLine').textContent = plabel(C.p) + ' · ' + C.vis.length + ' of ' + C.all.length + ' SDRs in view. Use the filters above to change the selection.';
+  drawCharts(C);
+}
+
+/* ---------- data checks and targets used ---------- */
+function renderChecks(vis) {
+  const groups = new Map();
+  vis.forEach(x => x.notes.forEach(t => { if (!groups.has(t)) groups.set(t, []); groups.get(t).push(x.r.n); }));
+  const cards = [...groups.entries()].sort((a, b) => b[1].length - a[1].length).map(([t, names]) =>
+    `<div><b>${names.length}</b><span>${esc(t.replace(/\.$/, ''))}</span><details><summary>Show SDRs</summary>${esc(names.join(', '))}</details></div>`);
+  const ig = st.sync && st.sync.ignored ? Object.entries(st.sync.ignored).filter(([, v]) => v > 0) : [];
+  if (ig.length) cards.push(`<div><b>${ig.reduce((a, [, v]) => a + v, 0)}</b><span>Names on the raw tabs that are not on the SDR list, ignored as in the workbook</span><details><summary>By tab</summary>${esc(ig.map(([k, v]) => k + ': ' + v).join(' · '))}</details></div>`);
+  $('#checks').innerHTML = cards.join('') || '<div><b>0</b><span>No data issues for the SDRs in view</span></div>';
+}
+function renderTargets(S) {
+  const W = S.weights, tot = Object.values(W).reduce((a, b) => a + b, 0);
+  const li = (a, b) => `<li><span>${a}</span><b>${b}</b></li>`;
+  const rules = `<div><h3>Points and rules</h3><ul class="rulelist">${COMPS.map(c => li(c.label, W[c.k] + ' points')).join('')}${li('Total', tot + ' points')}${li('Attendance target', pct0(S.attTarget))}${li('Late % must be below', pct0(S.lateLimit))}${li('Share of attendance points for presence', pct0(S.presenceShare))}${li('Quality target', S.qTarget)}${li('Follow-up window', S.fuWindow + ' days')}${li('Lead age below: Warm', S.ageLimit.w + ' days')}${li('Lead age below: Cold Call', S.ageLimit.cc + ' days')}${li('Lead age below: Internal', S.ageLimit.int + ' days')}${li('Non-voice share, Medical', (S.nvRule === 'Max' ? 'at most ' : 'at least ') + pct0(S.nvShareMedical))}${li('Non-voice share, other', (S.nvRule === 'Max' ? 'at most ' : 'at least ') + pct0(S.nvShareOther))}${li('Limit-type scoring', S.style)}${li('Punctuality', S.punct)}${li('No follow-up leads counts as compliant', S.noLeadsOk ? 'Yes' : 'No')}</ul></div>`;
+  const tbl = (t, keys, head) => `<div class="scroll"><table class="tmat"><thead><tr><th>Category</th>${keys.map(k => `<th class="n">${SRC_LABEL[k]}</th>`).join('')}</tr></thead><tbody>${Object.keys(t).map(cat => `<tr><td>${esc(cat)}</td>${keys.map(k => `<td class="n">${(t[cat][k] || 0) > 0 ? pct1(t[cat][k]) : '–'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  $('#tgtBody').innerHTML = rules + `<div><h3>Warm CVR targets, category × lead source</h3>${tbl(S.warmT, WARM_SRC)}<h3>Cold and Internal CVR targets</h3>${tbl(S.coldT, COLD_SRC)}</div>`;
+}
+
+/* ---------- charts ---------- */
+const cvar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function mkChart(id, cfg) { if (typeof Chart === 'undefined') return; if (charts[id]) charts[id].destroy(); charts[id] = new Chart(document.getElementById(id), cfg); }
+function drawCharts(C) {
+  const { vis, S, p } = C, f = st.f, n = vis.length;
+  const ink = cvar('--ink'), muted = cvar('--muted'), line = cvar('--line');
+  if (typeof Chart !== 'undefined') { Chart.defaults.font.family = cvar('--f'); Chart.defaults.color = muted; }
+  $('#cBT').textContent = (f.focus === 'overall' ? 'Overall score' : COMP_BY(f.focus).label) + ' trend';
+  const aData = COMPS.map(c => n ? vis.reduce((a, x) => a + x.s.pts[c.k], 0) / n / S.weights[c.k] * 100 : 0);
+  const labelPlugin = { id: 'vl', afterDatasetsDraw(ch) { const { ctx } = ch; ctx.save(); ctx.fillStyle = ink; ctx.font = '700 12px ' + cvar('--f'); ctx.textBaseline = 'middle'; ch.getDatasetMeta(0).data.forEach((b, i) => { ctx.fillText(f1(ch.data.datasets[0].data[i]) + '%', b.x + 6, b.y); }); ctx.restore(); } };
+  mkChart('chA', { type: 'bar', data: { labels: COMPS.map(c => c.label), datasets: [{ data: aData, backgroundColor: cvar('--navy2'), borderRadius: 4, barThickness: 16 }] },
+    options: { indexAxis: 'y', maintainAspectRatio: false, animation: false, layout: { padding: { right: 46 } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => f1(c.parsed.x) + '% of points available' } } }, scales: { x: { min: 0, max: 100, grid: { color: line }, ticks: { callback: v => v + '%' } }, y: { grid: { display: false }, ticks: { color: ink, font: { weight: '600' } } } } }, plugins: [labelPlugin] });
+  const ord = COMPS.map((c, i) => ({ c, a: aData[i] })).sort((a, b) => b.a - a.a);
+  $('#ins1').innerHTML = n ? `<b>Strongest:</b> ${ord[0].c.label} at ${f1(ord[0].a)}%. <b>Weakest:</b> ${ord[ord.length - 1].c.label} at ${f1(ord[ord.length - 1].a)}%.` : 'No SDRs match these filters.';
+  // trend over the periods of this view
+  const tp = periodsOf(f.view).slice(0, 14).reverse(), fm = f.focus === 'overall' ? 100 : S.weights[f.focus];
+  const pts = tp.map(q => { const sc = scoreAll(q.rows, S).filter(x => (f.sdrs.size === 0 || f.sdrs.has(x.r.n)) && (f.track === 'all' || x.r.t === f.track) && (f.cat === 'all' || x.r.c === f.cat)); return sc.length ? sc.reduce((a, x) => a + (f.focus === 'overall' ? x.s.total : x.s.pts[f.focus]), 0) / sc.length / fm * 100 : null; });
+  $('#cBS').textContent = tp.length < 2 ? 'More periods will appear here as the workbook is updated' : 'Team average by period, as a share of the points available';
+  const lc = cvar('--bar'), real = pts.filter(v => v !== null);
+  $('#ins2').innerHTML = real.length > 1 ? (() => { const d = real[real.length - 1] - real[real.length - 2]; return `<b>Latest:</b> ${f1(real[real.length - 1])}%, ${d >= 0 ? 'up' : 'down'} ${f1(Math.abs(d))} points on the period before.`; })() : (real.length ? `<b>Latest:</b> ${f1(real[0])}%.` : '');
+  mkChart('chB', { type: 'line', data: { labels: tp.map(tlabel), datasets: [{ data: pts, borderColor: lc, backgroundColor: hexA(lc, .14), fill: true, borderWidth: 3, pointRadius: pts.map((_, i) => i === pts.length - 1 ? 6 : 3.5), pointBackgroundColor: lc, pointHoverRadius: 7, tension: .3, spanGaps: true }] },
+    options: { maintainAspectRatio: false, animation: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => f1(c.parsed.y) + '%' } } }, scales: { y: { min: 0, max: 100, grid: { color: line }, ticks: { callback: v => v + '%' } }, x: { grid: { display: false } } } } });
+  // points lost by the lowest scorers
+  const low = vis.slice().sort((a, b) => a.s.total - b.s.total).slice(0, 10);
+  $('#cCS').textContent = low.length ? `Points lost by component · ${low.length} lowest scorers in view` : 'Nothing to show for this selection';
+  const lostBy = COMPS.map(c => ({ c, v: low.length ? low.reduce((a, x) => a + x.s.lost[c.k], 0) / low.length : 0 })).sort((a, b) => b.v - a.v);
+  $('#ins3').innerHTML = low.length ? `<b>Most points lost:</b> ${lostBy[0].c.label}, ${f1(lostBy[0].v)} per SDR on average across these ${low.length}.` : '';
+  mkChart('chC', { type: 'bar', data: { labels: low.map(x => x.r.n), datasets: COMPS.map(c => ({ label: c.label, data: low.map(x => x.s.lost[c.k]), backgroundColor: cvar(CKEY[c.k]) })) },
+    options: { indexAxis: 'y', maintainAspectRatio: false, animation: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, color: ink } }, tooltip: { callbacks: { label: c => c.dataset.label + ': −' + f1(c.parsed.x) + ' pts' } } }, scales: { x: { stacked: true, grid: { color: line } }, y: { stacked: true, grid: { display: false }, ticks: { color: ink, font: { size: 11 }, autoSkip: false } } } } });
+  // average score by category
+  const cat = new Map(); vis.forEach(x => { const k = x.r.c || 'No category'; const o = cat.get(k) || { s: 0, n: 0 }; o.s += x.s.total; o.n++; cat.set(k, o); });
+  const cl = [...cat.entries()].map(([k, o]) => ({ k, n: o.n, a: o.s / o.n })).sort((a, b) => b.a - a.a);
+  $('#ins4').innerHTML = cl.length ? `<b>Highest:</b> ${esc(cl[0].k)} at ${f1(cl[0].a)}. <b>Lowest:</b> ${esc(cl[cl.length - 1].k)} at ${f1(cl[cl.length - 1].a)}.` : '';
+  mkChart('chD', { type: 'bar', data: { labels: cl.map(x => x.k + ' (' + x.n + ')'), datasets: [{ data: cl.map(x => x.a), backgroundColor: cvar('--navy2'), borderRadius: 4, barThickness: 16 }] },
+    options: { indexAxis: 'y', maintainAspectRatio: false, animation: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => f1(c.parsed.x) + ' average' } } }, scales: { x: { min: 0, max: 100, grid: { color: line } }, y: { grid: { display: false }, ticks: { color: ink } } } } });
+  // score bands and tests passed
+  const bands = [['Under 50', 0, 50], ['50–59', 50, 60], ['60–69', 60, 70], ['70–79', 70, 80], ['80–89', 80, 90], ['90–100', 90, 101]];
+  const bc = bands.map(b => vis.filter(x => x.s.total >= b[1] && x.s.total < b[2]).length), mx = bc.indexOf(Math.max(...bc));
+  $('#ins5').innerHTML = n ? `<b>Most SDRs</b> (${bc[mx]}) score ${bands[mx][0].toLowerCase()}.` : '';
+  mkChart('chE', { type: 'bar', data: { labels: bands.map(b => b[0]), datasets: [{ data: bc, backgroundColor: cvar('--navy2'), borderRadius: 4, barThickness: 28 }] }, options: { maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: line } }, x: { grid: { display: false } } } } });
+  const tc = [0, 1, 2, 3, 4, 5, 6].map(k => vis.filter(x => x.s.full === k).length);
+  $('#ins6').innerHTML = n ? `<b>${tc[6]}</b> SDR${tc[6] === 1 ? '' : 's'} pass all six tests. <b>${tc[0]}</b> pass none.` : '';
+  mkChart('chF', { type: 'bar', data: { labels: ['0', '1', '2', '3', '4', '5', '6'], datasets: [{ data: tc, backgroundColor: cvar('--navy2'), borderRadius: 4, barThickness: 28 }] }, options: { maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: line } }, x: { grid: { display: false }, title: { display: true, text: 'Tests passed' } } } } });
+}
+
+/* ---------- points lost tab ---------- */
+function renderLost(C) {
+  const { vis, S, p } = C, W = S.weights, n = vis.length, sp = S.presenceShare;
+  $('#lostLine').textContent = plabel(p) + ' · ' + n + ' SDRs in view · where every SDR lost points, and why.';
+  const parts = [
+    ['CVR %', W.cvr, x => x.s.lost.cvr], ['Attendance (presence)', W.att * sp, x => x.s.lostSplit.presence], ['Punctuality (late %)', W.att * (1 - sp), x => x.s.lostSplit.punct],
+    ['Quality', W.q, x => x.s.lost.q], ['Cadence (lead age)', W.cad, x => x.s.lost.cad], ['Non-Voice', W.nv, x => x.s.lost.nv], ['Follow-up (' + S.fuWindow + ' days)', W.fu, x => x.s.lost.fu]
+  ];
+  const rows = parts.map(([label, max, fn]) => {
+    const lost = vis.map(fn), tot = lost.reduce((a, b) => a + b, 0), hit = lost.filter(v => v >= 0.005).length;
+    return `<tr><td><b>${esc(label)}</b></td><td class="n">${f1(max)}</td><td class="n">${n ? f2(max - tot / n) : '–'}</td><td class="n"><b>${f2(tot)}</b></td><td class="n">${n - hit}</td><td>${hit} of ${n} SDRs lost points here (${n ? Math.round(hit / n * 100) : 0}%)</td></tr>`;
+  });
+  const totLost = vis.reduce((a, x) => a + (100 - x.s.total), 0), starN = vis.filter(x => x.s.star).length;
+  rows.push(`<tr><td><b>Total</b></td><td class="n">100</td><td class="n">${n ? f2(vis.reduce((a, x) => a + x.s.total, 0) / n) : '–'}</td><td class="n"><b>${f2(totLost)}</b></td><td class="n">${starN}</td><td>SDRs at full marks in all components</td></tr>`);
+  $('#lostA').innerHTML = `<table><thead><tr><th>Component</th><th class="n">Max pts</th><th class="n">Avg earned</th><th class="n">Total pts not earned</th><th class="n">SDRs at full marks</th><th>How many lost points here</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
+  const ordered = vis.slice().sort((a, b) => a.pos - b.pos);
+  $('#lostBS').textContent = 'Ranked by total score. Click an SDR for the full scorecard.';
+  const cell = (lost, why, max) => `<td class="${lost >= 0.005 ? 'hit' : ''}"><b${lost < 0.005 ? ' class="zero"' : ''}>${lost < 0.005 ? '0' : f2(lost)}</b><span class="note"> of ${f1(max)}</span><span class="why">${esc(why)}</span></td>`;
+  const body = ordered.map(x => {
+    const s = x.s, w = x.why, nm = esc(x.r.n);
+    return `<tr class="lb" tabindex="0" data-n="${nm}"><td class="nw n rk${x.rank <= 3 ? ' top3' : ''}">${x.rank}</td><td class="nw"><b>${nm}</b><span class="note"> ${esc(x.r.t)} · ${esc(x.r.c)}</span></td><td class="nw n tot">${f2(s.total)}</td><td class="nw n"><b>${f2(100 - s.total)}</b></td>` +
+      cell(s.lost.cvr, w.cvr, W.cvr) + cell(s.lostSplit.presence, w.presence, W.att * sp) + cell(s.lostSplit.punct, w.punct, W.att * (1 - sp)) + cell(s.lost.q, w.q, W.q) + cell(s.lost.cad, w.cad, W.cad) + cell(s.lost.nv, w.nv, W.nv) + cell(s.lost.fu, w.fu, W.fu) + '</tr>';
+  }).join('');
+  $('#lostB').innerHTML = `<table class="lost"><thead><tr><th class="nw n">#</th><th class="nw">SDR</th><th class="nw n">Total</th><th class="nw n">Not earned</th><th>CVR lost</th><th>Presence lost</th><th>Punctuality lost</th><th>Quality lost</th><th>Cadence lost</th><th>Non-Voice lost</th><th>Follow-up lost</th></tr></thead><tbody>${body || '<tr><td colspan="11" class="empty">No SDRs match these filters.</td></tr>'}</tbody></table>`;
+}
+
+/* ---------- panels: scorecard and targets behind a score ---------- */
+const fmtP = v => v == null ? '–' : f1(v * 100) + '%';
+const fmtN = v => v == null ? '–' : f1(v);
+const fmtD = v => v == null ? '–' : f1(v) + ' d';
+const fmtC = v => v == null ? '–' : String(Math.round(v));
+function measureRows(x, key, C) {
+  const S = C.S, W = S.weights, r = x.r, s = x.s, rows = [];
+  let head = '', rule = '', extra = '';
+  const seg = (v, lim) => v === null ? null : (v < lim ? 1 : (S.style === 'Strict' ? 0 : lim / v));
+  const row = (label, val, tgt, dir, fmt, o) => Object.assign({ label, val, tgt, dir, fmt, key }, o || {});
+  if (key === 'cvr') {
+    const warm = r.t === 'Warm', tbl = warm ? S.warmT[r.c] : S.coldT[r.c], keys = warm ? WARM_SRC : COLD_SRC;
+    const cnt = s.cvrDetail.length, per = cnt ? W.cvr / cnt : 0;
+    keys.forEach(k => {
+      const t = tbl ? tbl[k] : undefined, v = num((r.cv || {})[k]), d = s.cvrDetail.find(z => z.k === k);
+      const o = row(SRC_LABEL[k], v, t === undefined ? null : t, 'min', fmtP);
+      if (t === undefined) { o.state = 'na'; o.na = 'No target'; o.note = 'No targets are set for the ' + (r.c || 'unknown') + ' category.'; }
+      else if (t <= 0) { o.state = 'na'; o.na = 'Not scored'; o.note = 'This source has no target for ' + r.c + ', so it does not count.'; }
+      else if (v === null) { o.state = 'na'; o.na = 'No figure'; o.note = 'No figure this period, so it is left out of the average.'; }
+      else { o.att = d.a; o.pts = d.a * per; o.max = per; o.state = d.a >= 1 - 1e-9 ? 'ok' : 'short'; o.note = o.state === 'ok' ? 'Target reached.' : 'Needs ' + fmtP(t - v) + ' more to reach the ' + fmtP(t) + ' target.'; }
+      rows.push(o);
+    });
+    head = s.V === null ? 'No source has both a figure and a target, so CVR scores zero.' : f1(s.V * 100) + '% average attainment across ' + cnt + ' counted source' + (cnt === 1 ? '' : 's') + '.';
+    rule = "Each lead source is compared with the target for the SDR's category: actual ÷ target, capped at 100%. The average across the sources that have a figure and a target is multiplied by " + W.cvr + ' points. Full marks need every counted source at or above its target.';
+    const tt = warm ? S.warmT : S.coldT;
+    extra = `<div class="dsec">${warm ? 'Warm' : 'Cold and Internal'} targets by category</div><div class="scroll"><table class="tmat"><thead><tr><th>Category</th>${keys.map(k => `<th class="n">${SRC_LABEL[k]}</th>`).join('')}</tr></thead><tbody>${Object.keys(tt).map(c => `<tr class="${c === r.c ? 'hl' : ''}"><td>${esc(c)}${c === r.c ? ' (this SDR)' : ''}</td>${keys.map(k => `<td class="n">${(tt[c][k] || 0) > 0 ? fmtP(tt[c][k]) : '–'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+    const peers = C.all.filter(y => y.r.t === r.t && y.r.c === r.c && y.s.V !== null);
+    if (peers.length > 1) extra += `<p class="note" style="margin-top:10px">Peers in ${esc(r.c)} (${peers.length} SDRs, this one included) average ${f1(peers.reduce((a, y) => a + y.s.V, 0) / peers.length * 100)}% attainment against these same targets.</p>`;
+  } else if (key === 'att') {
+    const at = num(r.at), share = S.presenceShare;
+    const a = row('Attendance', at, S.attTarget, 'min', fmtP);
+    if (at === null) { a.state = 'na'; a.na = 'No figure'; a.note = 'No attendance figure, so this part scores zero.'; }
+    else { a.att = s.presence / (W.att * share); a.pts = s.presence; a.max = W.att * share; a.state = rnd(at, 6) >= S.attTarget ? 'ok' : 'short'; a.note = a.state === 'ok' ? 'Attendance target reached.' : 'Needs ' + fmtP(S.attTarget - at) + ' more attendance.'; }
+    const l = row('Late arrivals', s.late, S.lateLimit, 'max', fmtP);
+    if (s.late === null) { l.state = 'na'; l.na = 'No figure'; l.note = 'No lateness figure.'; }
+    else { l.pts = s.punct; l.max = W.att * (1 - share); l.att = l.pts / l.max; l.state = s.late < S.lateLimit ? 'ok' : 'short'; l.note = l.state === 'ok' ? 'Under the limit.' : 'Over the limit. ' + (S.punct === 'Graded' ? 'Partial points are still earned.' : 'No punctuality points are earned.'); }
+    rows.push(a, l);
+    head = 'Attendance ' + fmtP(at) + ' against a ' + fmtP(S.attTarget) + ' target; late ' + fmtP(s.late) + ' against a limit of ' + fmtP(S.lateLimit) + '.';
+    rule = 'Attendance earns ' + pct0(share) + ' of the ' + W.att + ' points, scaled against the ' + pct0(S.attTarget) + ' target. The other ' + pct0(1 - share) + ' rewards keeping late arrivals below ' + pct0(S.lateLimit) + '. Full marks need both.';
+  } else if (key === 'q') {
+    const q = num(r.q), o = row('Quality score', q, S.qTarget, 'min', fmtN);
+    if (q === null) { o.state = 'na'; o.na = 'No figure'; o.note = 'No quality score, so this part scores zero.'; }
+    else { o.pts = s.q; o.max = W.q; o.att = s.q / W.q; o.state = q >= S.qTarget ? 'ok' : 'short'; o.note = o.state === 'ok' ? 'Target reached.' : 'Needs ' + fmtN(S.qTarget - q) + ' more points to reach ' + S.qTarget + '.'; }
+    rows.push(o);
+    head = 'Average quality ' + fmtN(q) + ' against a target of ' + S.qTarget + '.';
+    rule = 'Points are the quality score divided by the ' + S.qTarget + ' target, capped at 100%, times ' + W.q + '. Full marks need a score at or above the target.';
+  } else if (key === 'cad') {
+    const la = r.la || {}, defs = r.t === 'Warm' ? [['Warm lead age', num(la.w), S.ageLimit.w]] : [['Cold Call lead age', num(la.cc), S.ageLimit.cc], ['Internal lead age', num(la.int), S.ageLimit.int]];
+    const cnt = defs.filter(d => d[1] !== null).length, per = cnt ? W.cad / cnt : 0;
+    defs.forEach(d => {
+      const o = row(d[0], d[1], d[2], 'max', fmtD);
+      if (d[1] === null) { o.state = 'na'; o.na = 'No figure'; o.note = 'No lead age figure, so this segment is left out.'; }
+      else { const g = seg(d[1], d[2]); o.pts = g * per; o.max = per; o.att = g; o.state = d[1] < d[2] ? 'ok' : 'short'; o.note = o.state === 'ok' ? 'Leads are being worked quickly enough.' : 'Open leads are ' + fmtD(d[1] - d[2]) + ' older than the limit.' + (r.t === 'Warm' && num(la.ow) > 0 ? ' ' + num(la.ow) + ' open aged leads.' : ''); }
+      rows.push(o);
+    });
+    head = s.H === null ? 'No lead age data.' : 'Average lead age is compared with the limit for each segment this SDR works.';
+    rule = 'Average age of open leads must stay below the limit: ' + (r.t === 'Warm' ? S.ageLimit.w + ' days for Warm.' : S.ageLimit.cc + ' days for Cold Call and ' + S.ageLimit.int + ' days for Internal.') + ' Each segment earns an equal share of the ' + W.cad + ' points. ' + (S.style === 'Strict' ? 'Over the limit earns nothing for that segment.' : 'Over the limit earns partial points.');
+  } else if (key === 'nv') {
+    const max = S.nvRule === 'Max', o = row('Non-voice share', s.nvShare, s.nvTarget, max ? 'max' : 'min', fmtP);
+    o.pts = s.nv; o.max = W.nv; o.att = s.nv / W.nv; o.state = (max ? s.nvShare <= s.nvTarget : s.nvShare >= s.nvTarget) ? 'ok' : 'short';
+    o.note = o.state === 'ok' ? 'Within the rule.' : (max ? 'Above the cap by ' : 'Below the minimum by ') + fmtP(Math.abs(s.nvShare - s.nvTarget)) + '.';
+    rows.push(o);
+    head = 'Non-voice ' + fmtP(s.nvShare) + ' against a ' + (max ? 'cap' : 'minimum') + ' of ' + fmtP(s.nvTarget) + '.';
+    rule = 'The target is ' + pct0(s.nvTarget) + ' for ' + (r.c === 'Medical' ? 'Medical' : 'other categories') + '. Non-voice share must stay ' + (max ? 'at or below' : 'at or above') + ' the target for full marks of ' + W.nv + ' points.';
+  } else if (key === 'fu') {
+    const o = row('Leads followed up in time', s.fc, s.fl, 'min', fmtC);
+    o.pts = s.fu; o.max = W.fu; o.att = s.fu / W.fu;
+    if (s.fl === 0) { o.state = S.noLeadsOk ? 'ok' : 'short'; o.note = 'No leads on the follow-up sheets. ' + (S.noLeadsOk ? 'Counted as compliant.' : 'Counted as non-compliant.'); }
+    else { o.state = s.fc === s.fl ? 'ok' : 'short'; o.note = s.fc === s.fl ? 'Every lead was followed up in time.' : (s.fl - s.fc) + ' lead' + (s.fl - s.fc === 1 ? '' : 's') + ' missed the ' + S.fuWindow + '-day window.'; }
+    rows.push(o);
+    head = s.fl === 0 ? 'No leads on the follow-up sheets.' : s.fc + ' of ' + s.fl + ' leads have a follow-up inside ' + S.fuWindow + ' days.';
+    rule = 'Leads must have a follow-up status within ' + S.fuWindow + ' days of the lead date. Points are the share followed up in time, times ' + W.fu + '.';
+  }
+  return { rows, head, rule, extra };
+}
+function gaugeHTML(o) {
+  if (o.val == null || !(o.tgt > 0)) return '';
+  const scale = Math.max(o.val, o.tgt) * 1.12, over = o.dir === 'max' && o.state === 'short';
+  return `<div class="gauge" aria-hidden="true"><i class="${over ? 'over' : ''}" style="width:${Math.min(100, o.val / scale * 100)}%"></i><u style="left:${o.tgt / scale * 100}%"></u></div>`;
+}
+function measureHTML(o) {
+  const chip = o.state === 'ok' ? '<span class="st ok">' + (o.dir === 'max' ? 'Within limit' : 'Target met') + '</span>' : o.state === 'short' ? '<span class="st short">' + (o.dir === 'max' ? 'Over limit' : 'Below target') + '</span>' : '<span class="st na">' + esc(o.na || 'Not scored') + '</span>';
+  const tg = o.tgt == null ? '–' : (o.dir === 'max' ? 'below ' : '') + o.fmt(o.tgt);
+  return `<div class="mrow"><div class="mtop"><span>${esc(o.label)}</span>${chip}</div><div class="mvals"><span><small>Actual</small><b>${o.fmt(o.val)}</b></span><span><small>Target</small><b>${tg}</b></span>${o.pts != null ? `<span><small>Attainment</small><b>${f1(o.att * 100)}%</b></span><span><small>Points</small><b>${f2(o.pts)} / ${f2(o.max)}</b></span>` : ''}</div>${gaugeHTML(o)}<p class="mnote">${esc(o.note || '')}</p></div>`;
+}
+const panelScroll = () => { const d = document.querySelector('.drawer'); return d ? d.scrollTop : 0; };
+function openComp(name, key, keep) {
+  const C = compute(), x = C.all.find(y => y.r.n === name); if (!x) { closeDrawer(); return; }
+  const sc = keep ? panelScroll() : 0, s = x.s, r = x.r, W = C.S.weights, comp = COMP_BY(key), M = measureRows(x, key, C);
+  st.drawer = { n: name, k: key };
+  $('#layer').innerHTML = `<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" aria-label="${esc(r.n)} ${comp.label} targets">
+    <div class="dhead"><div><span class="eyebrow">${comp.label} targets</span><h2>${esc(r.n)}</h2><p class="note" style="margin:4px 0 0">${esc(r.t)} · ${esc(r.c || 'No category')} · rank ${x.rank} of ${C.all.length}</p></div><button class="btn" id="dclose" type="button">Close</button></div>
+    <div class="big">${f2(s.pts[key])}<small> / ${W[key]} points</small></div>
+    <div class="meter2"><i style="width:${Math.max(0, Math.min(100, s.pts[key] / W[key] * 100))}%"></i></div>
+    <p class="mnote">${s.tests[key] ? '<b style="color:var(--good)">Full marks.</b> ' : f2(W[key] - s.pts[key]) + ' points still available. '}${esc(M.head)}</p>
+    <div class="explain"><b>How ${comp.label} is scored</b>${esc(M.rule)}</div>
+    <div class="dsec">Actual against target</div>${M.rows.map(measureHTML).join('')}${M.extra}
+    <div class="dfoot"><button class="btn pri" type="button" data-open="${esc(r.n)}">All scores for ${esc(r.n)}</button></div></aside>`;
+  const d = document.querySelector('.drawer'); if (keep && d) d.scrollTop = sc; else $('#dclose').focus();
+}
+function openDrawer(name, keep) {
+  const C = compute(), x = C.all.find(y => y.r.n === name); if (!x) { closeDrawer(); return; }
+  const sc = keep ? panelScroll() : 0; st.drawer = { n: name, k: null };
+  const s = x.s, r = x.r, W = C.S.weights, w = x.why;
+  const why = { cvr: w.cvr, att: w.presence + ' · ' + w.punct, q: w.q, cad: w.cad, nv: w.nv, fu: w.fu };
+  const rows = COMPS.map(c => `<div class="crow"><div class="top2"><span>${c.label}</span><span class="num">${f2(s.pts[c.k])} / ${W[c.k]}</span></div><div class="bar"><i style="width:${Math.max(0, s.pts[c.k] / W[c.k] * 100)}%"></i></div><p>${s.tests[c.k] ? '<b style="color:var(--good)">Full marks.</b> ' : ''}${esc(String(why[c.k]).trim())}</p><button class="more" type="button" data-comp="${c.k}" data-n="${esc(r.n)}">See targets and actuals</button></div>`).join('');
+  const per = periodsOf(st.f.view).filter(q => q.rows.find(y => y.n === r.n)).reverse().map(q => ({ q, t: scoreRow(q.rows.find(y => y.n === r.n), C.S).total }));
+  const trend = per.length > 1 ? `<div class="dsec">Total by period</div>${per.map(o => `<div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:3px 0"><span class="note">${esc(plabel(o.q))}</span><b class="num">${f2(o.t)}</b></div>`).join('')}` : '';
+  const notes = x.notes.length ? `<div class="dsec">Data notes</div><ul style="margin:0;padding-left:18px;font-size:13px;color:var(--muted)">${x.notes.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '';
+  $('#layer').innerHTML = `<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" aria-label="${esc(r.n)} details"><div class="dhead"><div><span class="eyebrow">SDR scorecard</span><h2>${esc(r.n)}</h2><p class="note" style="margin:4px 0 0">${esc(r.t)} · ${esc(r.c || 'No category')} · rank ${x.rank} of ${C.all.length}</p></div><button class="btn" id="dclose" type="button">Close</button></div>
+    <div class="big">${f2(s.total)}<small> / 100</small></div>
+    <div>${s.star ? '<span class="badge star">STAR SDR</span>' : `<span class="badge">${s.full} of 6 full-marks tests</span>`} <span class="note">${f2(100 - s.total)} points not earned</span></div><div class="dsec">Score by part</div>${rows}${notes}${trend}</aside>`;
+  const d = document.querySelector('.drawer'); if (keep && d) d.scrollTop = sc; else $('#dclose').focus();
+}
+function redrawPanel() { const d = st.drawer; if (!d) return; if (d.k) openComp(d.n, d.k, true); else openDrawer(d.n, true); }
+function closeDrawer() { st.drawer = null; $('#layer').innerHTML = ''; }
+function toast(m) { const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 3200); }
+
+/* ---------- export ---------- */
+async function exportAll() {
+  const C = compute(); if (!C.p) return toast('Nothing to export yet.');
+  let dl = null; try { dl = await claude.use('downloads'); } catch (_) {}
+  if (typeof XLSX === 'undefined') return toast('Downloads are not available in this view.');
+  const W = C.S.weights, sp = C.S.presenceShare, ordered = C.vis.slice().sort((a, b) => a.pos - b.pos);
+  const scores = [['Rank', 'SDR', 'Track', 'Category', 'CVR', 'Attendance', 'Quality', 'Cadence', 'Non-Voice', 'Follow-up', 'Total', 'Full-marks tests', 'STAR SDR', 'Biggest gap', 'Data notes']]
+    .concat(ordered.map(x => [x.rank, x.r.n, x.r.t, x.r.c, ...COMPS.map(c => Math.round(x.s.pts[c.k] * 100) / 100), x.s.total, x.s.full, x.s.star ? 'Yes' : '-', x.s.star ? '-' : COMP_BY(x.s.gapKey).label + ' (-' + f1(x.s.gapPts) + ')', x.notes.join(' ') || '-']));
+  const lost = [['Rank', 'SDR', 'Track', 'Total', 'Points not earned', 'CVR lost', 'Why: CVR', 'Presence lost', 'Why: Attendance', 'Punctuality lost', 'Why: Late %', 'Quality lost', 'Why: Quality', 'Cadence lost', 'Why: Cadence', 'Non-Voice lost', 'Why: Non-Voice', 'Follow-up lost', 'Why: Follow-up']]
+    .concat(ordered.map(x => [x.rank, x.r.n, x.r.t, x.s.total, r2(100 - x.s.total), x.s.lost.cvr, x.why.cvr, x.s.lostSplit.presence, x.why.presence, x.s.lostSplit.punct, x.why.punct, x.s.lost.q, x.why.q, x.s.lost.cad, x.why.cad, x.s.lost.nv, x.why.nv, x.s.lost.fu, x.why.fu]));
+  const wb = XLSX.utils.book_new();
+  [['Scores', scores], ['Points lost', lost]].forEach(([nm, aoa]) => { const ws = XLSX.utils.aoa_to_sheet(aoa); ws['!cols'] = aoa[0].map((_, i) => ({ wch: i < 3 ? 22 : 16 })); XLSX.utils.book_append_sheet(wb, ws, nm); });
+  const buf = XLSX.write(wb, { type: 'array', bookType: 'xlsx' }), fname = 'STAR_SDR_' + C.p.id + '.xlsx';
+  if (!dl) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([buf], { type: 'application/octet-stream' })); a.download = fname; document.body.appendChild(a); a.click(); a.remove(); return; }
+  try { await dl.save({ filename: fname, data: buf }); toast('Saved the export.'); } catch (e) { if (e && e.code !== 'declined') toast('The file could not be saved.'); }
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const t = e.target.closest('button,tr.lb,.scrim'); if (!t) return;
+  if (t.classList.contains('tab')) { st.tab = t.dataset.tab; return render(); }
+  if (t.dataset.comp) return openComp(t.dataset.n, t.dataset.comp);
+  if (t.dataset.open) return openDrawer(t.dataset.open);
+  if (t.dataset.focus) { st.f.focus = t.dataset.focus; return render(); }
+  if (t.classList.contains('lb')) return openDrawer(t.dataset.n);
+  if (t.id === 'scrim' || t.id === 'dclose') return closeDrawer();
+  if (t.id === 'fReset') { st.f.sdrs = new Set(); st.f.track = st.f.cat = 'all'; st.f.focus = 'overall'; st.f.below = false; return render(); }
+  if (t.id === 'msAll') { $$('#msl input').forEach(i => st.f.sdrs.add(i.dataset.n)); return render(); }
+  if (t.id === 'msClear') { st.f.sdrs = new Set(); return render(); }
+  if (t.id === 'btnExport') return exportAll();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && st.drawer) closeDrawer();
+  if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('lb')) openDrawer(e.target.dataset.n);
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'fView') { st.f.view = t.value; st.f.pid = 'latest'; return render(); }
+  if (t.id === 'fPeriod') { st.f.pid = t.value; return render(); }
+  if (t.id === 'fTrack') { st.f.track = t.value; return render(); }
+  if (t.id === 'fCat') { st.f.cat = t.value; return render(); }
+  if (t.id === 'fBelow') { st.f.below = t.checked; return render(); }
+  if (t.dataset && t.dataset.n !== undefined && t.closest('#msl')) { t.checked ? st.f.sdrs.add(t.dataset.n) : st.f.sdrs.delete(t.dataset.n); return render(); }
+});
+document.addEventListener('input', e => { if (e.target.id === 'msq') render(); });
+
+/* ---------- data ---------- */
+function loadData(periods, settings, sync) {
+  if (periods) { st.periods = periods.filter(p => Array.isArray(p.rows)); st.loaded = true; if (firstLoad) { firstLoad = false; defaultFilter(); } else if (!periodsOf(st.f.view).length) defaultFilter(); }
+  if (settings) st.settings = mergeSettings(settings);
+  if (sync !== undefined) st.sync = sync;
+  render();
+}
+async function boot() {
+  render();
+  let db = null; try { db = await claude.use('db'); } catch (_) {}
+  if (!db) {
+    try { const r = await fetch('data.json', { cache: 'no-store' }); if (r.ok) { const d = await r.json(); loadData(d.periods, d.settings || null, d.sync || null); return; } } catch (_) {}
+    st.loaded = true; render(); $('#empty').innerHTML = '<div class="card empty"><h3>Open this page in claude.ai</h3><p>The scores are saved in the page database, which opens when you are signed in.</p></div>'; return; }
+  db.collection('periods').onSnapshot(snap => loadData(snap.docs.map(d => Object.assign({ id: d.id }, clone(d.data())))), () => {});
+  db.doc('settings/main').onSnapshot(s => { if (s.exists && s.data().v) loadData(null, clone(s.data().v)); });
+  db.doc('settings/sync').onSnapshot(s => loadData(null, null, s.exists ? clone(s.data()) : null));
+}
+boot();
+</script>
+</body></html>
