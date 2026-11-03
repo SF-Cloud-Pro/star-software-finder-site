@@ -2,6 +2,8 @@
 <title>Software Finder CF STAR SDR</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="robots" content="noindex,nofollow">
+<meta name="build" content="2026-11-03 sdr-wise focus list">
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout: navy masthead with two tabs, a filter band, facts strip, three headline cards, six component cards, the leaderboard, the score guide, then the charts, data checks and targets used. One light theme in the Software Finder palette: navy, one green accent, cool greys. */
@@ -170,6 +172,10 @@ td.n,th.n{text-align:right}
 .cc.g .bar i,.crow.g .bar i,.meter2.g i{background:var(--gr)}
 .cc.y .bar i,.crow.y .bar i,.meter2.y i{background:var(--ye)}
 .cc.r .bar i,.crow.r .bar i,.meter2.r i{background:var(--rd)}
+#fboard{scroll-margin-top:170px}
+#fboard .card{margin-bottom:16px}
+.fscroll{max-height:560px;overflow:auto}
+td.det{white-space:normal;min-width:240px;color:var(--muted);font-size:13px}
 .ckey{position:relative}
 .ckey summary{list-style:none;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--brand-deep);border:1px solid var(--line);border-radius:8px;padding:4px 11px;background:var(--surface)}
 .ckey summary::-webkit-details-marker{display:none}
@@ -291,6 +297,7 @@ td.n,th.n{text-align:right}
   <div class="pagehead"><h2>Team performance</h2><p id="scopeLine">Loading…</p></div>
   <div id="empty"></div>
   <div id="body">
+    <div id="fboard"></div>
     <div class="strip" id="kpis"></div>
     <div class="bigs" id="bigs"></div>
     <div id="top3"></div>
@@ -602,9 +609,13 @@ function periodsFromWorkbook(wb, win) {
   const inputs = scoringInputs(wb);
   const disp = new Map(), coldSeen = new Set(), firstCat = new Map();
   asc.forEach(p => {
-    (by.wcvr[p.id] || []).forEach(r => { const l = _low(r[0]); if (!l) return; if (!disp.has(l)) disp.set(l, String(r[0]).trim()); if (!firstCat.has(l)) firstCat.set(l, r[3]); });
-    (by.ccvr[p.id] || []).forEach(r => { const l = _low(r[0]); if (!l) return; if (!disp.has(l)) disp.set(l, String(r[0]).trim()); coldSeen.add(l); firstCat.set(l, r[3]); });
+    (by.wcvr[p.id] || []).forEach(r => { const l = _low(r[0]); if (!l) return; if (!disp.has(l)) disp.set(l, String(r[0]).trim()); });
+    (by.ccvr[p.id] || []).forEach(r => { const l = _low(r[0]); if (!l) return; if (!disp.has(l)) disp.set(l, String(r[0]).trim()); coldSeen.add(l); });
   });
+  // the workbook reads the category from the FIRST matching row on the Warm CVR / Cold CVR tab (INDEX/MATCH), whatever the period
+  const coldCat = new Map();
+  rows.wcvr.forEach(r => { const l = _low(r[0]); if (l && !firstCat.has(l)) firstCat.set(l, r[3]); });
+  rows.ccvr.forEach(r => { const l = _low(r[0]); if (l && !coldCat.has(l)) coldCat.set(l, r[3]); });
   const roster = inputs ? inputs.names.map(n => _low(n)) : [...disp.keys()];
   if (inputs) inputs.names.forEach(n => disp.set(_low(n), n));
   const rosterSet = new Set(roster), altOf = inputs ? inputs.alt : new Map();
@@ -623,8 +634,8 @@ function periodsFromWorkbook(wb, win) {
   asc.forEach(p => {
     const end = pEnd(p), mine = k => by[k][p.id] || [];
     const wc = new Map(), cc = new Map(), over = new Set();
-    mine('wcvr').forEach(r => { const l = _low(r[0]), v = _n(r[1]); if (!rosterSet.has(l) || v === null) return; if (v > 1) over.add(l); const k = WSRC[_low(r[2])]; if (k) { const o = wc.get(l) || {}; o[k] = (o[k] || 0) + v; wc.set(l, o); } });
-    mine('ccvr').forEach(r => { const l = _low(r[0]), s = _low(r[2]), v = _n(r[1]); if (!rosterSet.has(l) || v === null) return; if (v > 1) over.add(l); const o = cc.get(l) || {}; if (s === 'cold call') o.cc = (o.cc || 0) + v; else if (s === 'internal campaigns') o.int = (o.int || 0) + v; cc.set(l, o); });
+    mine('wcvr').forEach(r => { const l = _low(r[0]), v = _n(r[1]); if (!rosterSet.has(l) || v === null) return; if (v > 1) over.add(l); const k = WSRC[_low(r[2])]; if (k) { const o = wc.get(l) || {}, e = o[k] || (o[k] = { s: 0, n: 0 }); e.s += v; e.n++; wc.set(l, o); } });
+    mine('ccvr').forEach(r => { const l = _low(r[0]), s = _low(r[2]), v = _n(r[1]); if (!rosterSet.has(l) || v === null) return; if (v > 1) over.add(l); const o = cc.get(l) || {}, key = s === 'cold call' ? 'cc' : s === 'internal campaigns' ? 'int' : null; if (key) { const e = o[key] || (o[key] = { s: 0, n: 0 }); e.s += v; e.n++; } cc.set(l, o); });
     const attM = byName('att', p.id, true), wqM = byName('wq', p.id), cqM = byName('cq', p.id), lawM = byName('law', p.id, true), nvM = byName('nv', p.id), lacM = new Map();
     mine('lac').forEach(r => { const l = _low(r[0]), v = _n(r[2]), s = _low(r[1]); if (!rosterSet.has(l) || v === null) return; const key = s === 'cold outreach' ? 'cc' : s === 'internal campaigns' ? 'int' : null; if (!key) return; const o = lacM.get(l) || { cc: [], int: [] }; o[key].push(v); lacM.set(l, o); });
     const fu = (k, own, sub, dt) => { const m = new Map(); rows[k].forEach(r => { const l = _low(r[own]); if (!rosterSet.has(l)) return; if (!undated) { const iso = isoOf(r[dt]); if (!iso || iso < p.start || iso > end) return; } const o = m.get(l) || { fl: 0, fc: 0 }; o.fl++; const h = _days(r[sub]), d = _days(r[dt]); if (h !== null && d !== null && (h - d) <= win) o.fc++; m.set(l, o); }); return m; };
@@ -632,10 +643,12 @@ function periodsFromWorkbook(wb, win) {
     const out = [];
     roster.forEach(l => {
       const cold = coldSeen.has(l), track = cold ? 'Cold & Internal' : 'Warm', ovr = inputs && inputs.ov.get(l);
-      const o = { n: disp.get(l), t: track, c: ovr || catOf(track, firstCat.get(l)), cv: {}, la: {} };
+      const o = { n: disp.get(l), t: track, c: ovr || catOf(track, (cold ? coldCat : firstCat).get(l)), cv: {}, la: {} };
       if (ovr) o.co = ovr;
-      if (cold) { const x = cc.get(l) || {}; o.cv.cc = x.cc === undefined ? null : x.cc; o.cv.int = x.int === undefined ? null : x.int; }
-      else { const x = wc.get(l) || {}; WARM_SRC.forEach(k => { o.cv[k] = x[k] === undefined ? null : x[k]; }); }
+      // several rows for one SDR and source are averaged, as AVERAGEIFS does on the Scoring tab
+      const mean = e => e === undefined ? null : e.s / e.n;
+      if (cold) { const x = cc.get(l) || {}; o.cv.cc = mean(x.cc); o.cv.int = mean(x.int); }
+      else { const x = wc.get(l) || {}; WARM_SRC.forEach(k => { o.cv[k] = mean(x[k]); }); }
       if (over.has(l)) o.o1 = 1;
       const a = attM(l); o.at = a ? _n(a[1]) : null; o.lt = a ? _n(a[2]) : null;
       if (altOf.has(l)) o.alt = 1;
@@ -739,6 +752,39 @@ function fillFilters(C) {
     `<label class="chk"><input type="checkbox" id="fBelow"${f.below ? ' checked' : ''}> Only below full marks</label>`;
 }
 
+/* ---------- SDR-wise list for the chosen focus chip ---------- */
+const tgtPct = x => (Math.round(x * 1000) / 10) + '%';
+function focusDetail(x, k, S) {
+  const r = x.r, s = x.s;
+  if (k === 'cvr') return s.V === null ? 'No CVR source with a target' : s.cvrDetail.map(d => SRC_LABEL[d.k] + ' ' + pct1(d.v) + ' / ' + tgtPct(d.t)).join(' · ');
+  if (k === 'att') { const at = num(r.at); return at === null ? 'No attendance data' : 'Present ' + pct1(at) + ' · Late ' + pct1(s.late); }
+  if (k === 'q') { const q = num(r.q); return q === null ? 'No quality score' : 'Average quality ' + dec1(q) + ' (target ' + S.qTarget + ')'; }
+  if (k === 'cad') {
+    const la = r.la || {}, w = num(la.w), cc = num(la.cc), it = num(la.int);
+    const parts = r.t === 'Warm' ? (w === null ? [] : ['Warm lead age ' + dec1(w) + ' days (limit ' + S.ageLimit.w + ')'])
+      : [cc === null ? null : 'Cold Call ' + dec1(cc) + ' days (limit ' + S.ageLimit.cc + ')', it === null ? null : 'Internal ' + dec1(it) + ' days (limit ' + S.ageLimit.int + ')'].filter(Boolean);
+    return parts.length ? parts.join(' · ') : 'No lead age data';
+  }
+  if (k === 'nv') return 'Non-voice ' + pct1(s.nvShare) + (S.nvRule === 'Max' ? ' (cap ' : ' (minimum ') + pct0(s.nvTarget) + ')';
+  return s.fl === 0 ? 'No leads on the Follow Up sheet' : s.fc + ' of ' + s.fl + ' leads have a follow-up date';
+}
+function renderFocusBoard(C) {
+  const f = st.f, el = $('#fboard');
+  if (f.focus === 'overall') { el.innerHTML = ''; return; }
+  const { vis, S } = C, k = f.focus, c = COMP_BY(k), mx = S.weights[k], n = vis.length;
+  const avg = n ? vis.reduce((a, x) => a + x.s.pts[k], 0) / n : 0, full = vis.filter(x => x.s.tests[k]).length;
+  let last = null, rk = 0;
+  const rows = vis.map((x, i) => {
+    const pt = x.s.pts[k], key = Math.round(pt * 100), name = esc(x.r.n);
+    if (key !== last) { rk = i + 1; last = key; }
+    return `<tr class="lb" tabindex="0" data-n="${name}"><td class="n rk${rk <= 3 ? ' top3' : ''}">${rk}</td><td><div class="who"><span class="av${x.r.t === 'Warm' ? '' : ' cold'}">${esc(initials(x.r.n))}</span><div>${name}<small>${esc(x.r.t)} · ${esc(x.r.c || 'No category')}</small></div></div></td>` +
+      `<td class="n"><button class="cellbtn" type="button" data-comp="${k}" data-n="${name}" aria-label="${name}, ${c.label} ${f1(pt)} of ${mx}. Open targets"><span class="mini ${bandOf(k, pt, mx)}"><b>${f1(pt)}</b></span></button></td>` +
+      `<td class="n">${f1(mx ? pt / mx * 100 : 0)}%</td><td class="det">${esc(focusDetail(x, k, S))}</td><td class="n">${x.s.lost[k] > 0 ? '−' + f1(x.s.lost[k]) : '–'}</td></tr>`;
+  }).join('');
+  el.innerHTML = `<div class="card tcard"><div class="thead"><div><h2>${c.label} · SDR-wise performance</h2><p class="sub" style="margin:0">${n} SDR${n === 1 ? '' : 's'}, best to lowest · ${mx} points · team average ${f1(avg)} · ${full} of ${n} at full marks</p></div><button class="btn" type="button" data-focus="overall">Back to overall</button></div>` +
+    `<div class="scroll fscroll"><table><thead><tr><th class="n">#</th><th>SDR</th><th class="n">${c.label} <span class="th-note">/${mx}</span></th><th class="n">% of points</th><th>Actual / target</th><th class="n">Points lost</th></tr></thead><tbody>${rows || '<tr><td colspan="6" class="empty">No SDRs match these filters.</td></tr>'}</tbody></table></div></div>`;
+}
+
 /* ---------- render ---------- */
 function render() {
   const C = compute(), p = C.p;
@@ -801,6 +847,7 @@ function renderDash(C) {
   }).join('');
   $('#board').innerHTML = head + (body || `<tr><td colspan="12" class="empty">No SDRs match these filters.</td></tr>`) + '</tbody></table>';
   $('#ckey').innerHTML = colorKeyHTML(S);
+  renderFocusBoard(C);
   renderChecks(vis); renderTargets(S);
   $('#foot').textContent = 'Scores follow the formulas in the team workbook (Scoring tab): graded partial credit, CVR measured against category and lead-source targets. The dashboard refreshes from that workbook every morning.';
 }
@@ -1039,7 +1086,11 @@ document.addEventListener('click', e => {
   if (t.classList.contains('tab')) { st.tab = t.dataset.tab; return render(); }
   if (t.dataset.comp) return openComp(t.dataset.n, t.dataset.comp);
   if (t.dataset.open) return openDrawer(t.dataset.open);
-  if (t.dataset.focus) { st.f.focus = t.dataset.focus; return render(); }
+  if (t.dataset.focus) {
+    st.f.focus = t.dataset.focus; render();
+    const b = $('#fboard'); if (st.f.focus !== 'overall' && st.tab === 'dash' && b && b.firstChild) b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
   if (t.classList.contains('lb')) return openDrawer(t.dataset.n);
   if (t.id === 'scrim' || t.id === 'dclose') return closeDrawer();
   if (t.id === 'fReset') { st.f.sdrs = new Set(); st.f.track = st.f.cat = 'all'; st.f.focus = 'overall'; st.f.below = false; return render(); }
