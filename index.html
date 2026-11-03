@@ -1028,7 +1028,7 @@ async function exportAll() {
     .concat(ordered.map(x => [x.rank, x.r.n, x.r.t, x.s.total, r2(100 - x.s.total), x.s.lost.cvr, x.why.cvr, x.s.lostSplit.presence, x.why.presence, x.s.lostSplit.punct, x.why.punct, x.s.lost.q, x.why.q, x.s.lost.cad, x.why.cad, x.s.lost.nv, x.why.nv, x.s.lost.fu, x.why.fu]));
   const wb = XLSX.utils.book_new();
   [['Scores', scores], ['Points lost', lost]].forEach(([nm, aoa]) => { const ws = XLSX.utils.aoa_to_sheet(aoa); ws['!cols'] = aoa[0].map((_, i) => ({ wch: i < 3 ? 22 : 16 })); XLSX.utils.book_append_sheet(wb, ws, nm); });
-  const buf = XLSX.write(wb, { type: 'array', bookType: 'xlsx' }), fname = 'Software_Finder_CF_STAR_' + C.p.id + '.xlsx';
+  const buf = XLSX.write(wb, { type: 'array', bookType: 'xlsx' }), fname = 'Software_Finder_CF_STAR_SDR_' + C.p.id + '.xlsx';
   if (!dl) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([buf], { type: 'application/octet-stream' })); a.download = fname; document.body.appendChild(a); a.click(); a.remove(); return; }
   try { await dl.save({ filename: fname, data: buf }); toast('Saved the export.'); } catch (e) { if (e && e.code !== 'declined') toast('The file could not be saved.'); }
 }
